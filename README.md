@@ -38,6 +38,16 @@ Create a production build with:
 npm run build
 ```
 
+## Deployment
+
+The production site is deployed from the `main` branch with Vercel. Pull
+requests receive preview deployments, while a successful merge to `main`
+updates the production deployment. GitHub Actions runs lint, tests, and a
+production build before changes are merged.
+
+The canonical production origin is
+[ehrintegrationdirectory.com](https://ehrintegrationdirectory.com).
+
 ## Project structure
 
 - `app/` — pages, metadata, sitemap, robots, and JSON API

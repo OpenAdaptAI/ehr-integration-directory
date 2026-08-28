@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { ehrs, workflows } from "@/lib/ehrs";
 
-const origin = "https://ehr-integration-directory.abr.chatgpt.site";
+const origin = "https://ehrintegrationdirectory.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date("2026-08-28T00:00:00.000Z");

@@ -11,13 +11,13 @@ export default function Home() {
     name: "EHR Integration Directory",
     description: "A source-linked directory of public EHR integration and write-back evidence.",
     creator: { "@type": "Organization", name: "OpenAdapt", url: "https://openadapt.ai" },
-    url: "https://ehr-integration-directory.abr.chatgpt.site",
+    url: "https://ehrintegrationdirectory.com",
     dateModified: "2026-08-28",
     license: "https://creativecommons.org/licenses/by/4.0/",
     distribution: {
       "@type": "DataDownload",
       encodingFormat: "application/json",
-      contentUrl: "https://ehr-integration-directory.abr.chatgpt.site/api/directory",
+      contentUrl: "https://ehrintegrationdirectory.com/api/directory",
     },
   };
 

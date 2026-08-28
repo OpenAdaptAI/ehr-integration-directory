@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ehr-integration-directory.abr.chatgpt.site"),
+  metadataBase: new URL("https://ehrintegrationdirectory.com"),
   title: {
     default: "EHR Integration Directory",
     template: "%s | EHR Integration Directory",
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     title: "EHR Integration Directory",
     description: "Evidence-backed paths into major EHRs, with sources and honest uncertainty.",
     type: "website",
-    url: "https://ehr-integration-directory.abr.chatgpt.site",
+    url: "https://ehrintegrationdirectory.com",
     siteName: "EHR Integration Directory",
   },
   icons: {

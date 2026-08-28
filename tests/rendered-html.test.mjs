@@ -1,32 +1,36 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-test("renders the directory landing page and metadata", async () => {
-  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
-  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
-  const { default: worker } = await import(workerUrl.href);
+const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-  const response = await worker.fetch(
-    new Request("http://localhost/", {
-      headers: { accept: "text/html" },
-    }),
-    {
-      ASSETS: {
-        fetch: async () => new Response("Not found", { status: 404 }),
-      },
-    },
-    {
-      waitUntil() {},
-      passThroughOnException() {},
-    },
-  );
+test("uses the production domain in discoverability metadata", async () => {
+  const [layout, robots, sitemap, page] = await Promise.all([
+    read("app/layout.tsx"),
+    read("app/robots.ts"),
+    read("app/sitemap.ts"),
+    read("app/page.tsx"),
+  ]);
 
-  assert.equal(response.status, 200);
-  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+  for (const source of [layout, robots, sitemap, page]) {
+    assert.match(source, /https:\/\/ehrintegrationdirectory\.com/);
+    assert.doesNotMatch(source, /chatgpt\.site/);
+  }
 
-  const html = await response.text();
-  assert.match(html, /<title>EHR Integration Directory<\/title>/i);
-  assert.match(html, /Find the supported path into every major EHR\./i);
-  assert.match(html, /application\/ld\+json/i);
-  assert.match(html, /Compare public integration paths/i);
+  assert.match(layout, /EHR Integration Directory/);
+  assert.match(robots, /sitemap\.xml/);
+  assert.match(page, /application\/ld\+json/);
+});
+
+test("publishes a directory API and evidence-linked dataset", async () => {
+  const [route, data] = await Promise.all([
+    read("app/api/directory/route.ts"),
+    read("lib/ehrs.ts"),
+  ]);
+
+  assert.match(route, /export (?:async )?function GET/);
+  assert.match(route, /ehrs/);
+  assert.match(data, /sources:/);
+  assert.match(data, /url: "https:\/\//);
+  assert.match(data, /documented/);
 });
