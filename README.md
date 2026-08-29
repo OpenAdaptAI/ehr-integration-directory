@@ -4,8 +4,14 @@ An evidence-backed directory of public API paths, FHIR and HL7 capabilities,
 partner requirements, sandbox access, documented write operations, and EHR
 workflows that still end at the user interface.
 
+Each row is a source-linked census of one public integration path. A
+write-back that is partner-gated, site-specific, not found, or unknown
+names a remaining screen. It does not mean OpenAdapt ships an agent for
+that vendor.
+
 Published by [OpenAdapt](https://openadapt.ai). The live directory is available
-at [ehrintegrationdirectory.com](https://ehrintegrationdirectory.com).
+at [ehrintegrationdirectory.com](https://ehrintegrationdirectory.com). The
+GitHub repository homepage uses the same origin.
 
 ## What is included
 
@@ -50,10 +56,11 @@ The canonical production origin is
 
 ## Project structure
 
-- `app/` — pages, metadata, sitemap, robots, and JSON API
-- `components/` — directory interface and UI primitives
-- `lib/ehrs.ts` — source-linked directory records and workflow definitions
-- `tests/` — rendered output and component checks
+- `app/` - pages, metadata, sitemap, robots, and JSON API
+- `components/` - directory interface and UI primitives
+- `lib/ehrs.ts` - source-linked directory records and workflow definitions
+- `lib/links.ts` - canonical origin and OpenAdapt Execute / Partners URLs
+- `tests/` - rendered output and component checks
 
 ## Contributing evidence
 

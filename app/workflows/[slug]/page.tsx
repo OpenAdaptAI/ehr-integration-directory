@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, CheckCircle2, GitBranch, SearchCheck, ShieldAlert } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
+import { OPENADAPT_EXECUTE_URL, remainingScreenNote } from "@/lib/links";
 import { getWorkflow, workflows } from "@/lib/ehrs";
 
 export function generateStaticParams() {
@@ -58,8 +59,8 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
         <section className="mt-10 rounded-2xl bg-[#10233f] p-7 text-white sm:p-9">
           <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-cyan-200">Decision rule</p>
           <h2 className="mt-3 text-2xl font-semibold">Prefer a practical API. Prove the last mile.</h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300">If no practical supported interface can complete this operation, OpenAdapt can turn a demonstrated UI task into an approved program, verify the resulting state, and halt on ambiguity.</p>
-          <a href="https://openadapt.ai/qualify" target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 rounded-md bg-white px-4 py-2.5 text-sm font-semibold text-[#10233f] hover:bg-slate-100">Qualify this workflow <ArrowRight className="size-4" /></a>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300">{remainingScreenNote("the vendor")}</p>
+          <a href={OPENADAPT_EXECUTE_URL} target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 rounded-md bg-white px-4 py-2.5 text-sm font-semibold text-[#10233f] hover:bg-slate-100">OpenAdapt Execute <ArrowRight className="size-4" /></a>
         </section>
       </main>
     </div>

@@ -3,6 +3,7 @@ import { ArrowRight, BookOpen, Database, FileCheck2, ShieldCheck } from "lucide-
 import { DirectoryExplorer } from "@/components/directory-explorer";
 import { SiteHeader } from "@/components/site-header";
 import { workflows } from "@/lib/ehrs";
+import { CANONICAL_ORIGIN, OPENADAPT_EXECUTE_URL } from "@/lib/links";
 
 export default function Home() {
   const jsonLd = {
@@ -11,13 +12,13 @@ export default function Home() {
     name: "EHR Integration Directory",
     description: "A source-linked directory of public EHR integration and write-back evidence.",
     creator: { "@type": "Organization", name: "OpenAdapt", url: "https://openadapt.ai" },
-    url: "https://ehrintegrationdirectory.com",
+    url: CANONICAL_ORIGIN,
     dateModified: "2026-08-28",
     license: "https://creativecommons.org/licenses/by/4.0/",
     distribution: {
       "@type": "DataDownload",
       encodingFormat: "application/json",
-      contentUrl: "https://ehrintegrationdirectory.com/api/directory",
+      contentUrl: `${CANONICAL_ORIGIN}/api/directory`,
     },
   };
 
@@ -38,10 +39,10 @@ export default function Home() {
               </p>
             </div>
             <aside className="self-end rounded-2xl border border-slate-200 bg-white p-5">
-              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-slate-500">The rule</p>
-              <p className="mt-3 text-sm font-medium leading-6 text-slate-800">Use an API when practical. When the last mile exists only in the UI, qualify it before automating it.</p>
-              <a href="https://openadapt.ai/qualify" target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#0b766e] hover:underline">
-                Qualify a workflow <ArrowRight className="size-4" />
+              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-slate-500">The gap</p>
+              <p className="mt-3 text-sm font-medium leading-6 text-slate-800">Use a cited API when it writes the record. Partner-gated, site-specific, not-found, and unknown rows name a remaining screen. That screen is the job.</p>
+              <a href={OPENADAPT_EXECUTE_URL} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#0b766e] hover:underline">
+                OpenAdapt Execute <ArrowRight className="size-4" />
               </a>
             </aside>
           </div>

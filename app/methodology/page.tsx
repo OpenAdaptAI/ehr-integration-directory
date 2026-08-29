@@ -19,7 +19,7 @@ export default function MethodologyPage() {
         <header className="mt-10 max-w-4xl">
           <p className="eyebrow"><Scale className="size-3.5" /> Research standard</p>
           <h1 className="mt-5 text-4xl font-semibold tracking-[-0.04em] text-[#10233f] sm:text-6xl">Evidence before verdict.</h1>
-          <p className="mt-6 text-lg leading-8 text-slate-600">The unit of analysis is not “Does this EHR have an API?” It is the product, operation, integration path, access requirement, execution surface, verifier, and source.</p>
+          <p className="mt-6 text-lg leading-8 text-slate-600">This is a census of cited public paths, operation by operation. The unit of analysis is not “Does this EHR have an API?” It is the product, operation, integration path, access requirement, execution surface, verifier, and source.</p>
         </header>
 
         <section className="mt-12 grid gap-5 md:grid-cols-3">

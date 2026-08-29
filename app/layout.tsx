@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { CANONICAL_ORIGIN } from "@/lib/links";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ehrintegrationdirectory.com"),
+  metadataBase: new URL(CANONICAL_ORIGIN),
   title: {
     default: "EHR Integration Directory",
     template: "%s | EHR Integration Directory",
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
     title: "EHR Integration Directory",
     description: "Evidence-backed paths into major EHRs, with sources and honest uncertainty.",
     type: "website",
-    url: "https://ehrintegrationdirectory.com",
+    url: CANONICAL_ORIGIN,
     siteName: "EHR Integration Directory",
   },
   icons: {

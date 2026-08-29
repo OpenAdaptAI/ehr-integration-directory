@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowUpRight, CheckCircle2, CircleHelp, ExternalLink, FileSe
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site-header";
 import { StatusBadge } from "@/components/status-badge";
+import { OPENADAPT_EXECUTE_URL, remainingScreenNote } from "@/lib/links";
 import { ehrs, getEhr } from "@/lib/ehrs";
 
 export function generateStaticParams() {
@@ -114,8 +115,9 @@ export default async function EhrProfile({ params }: { params: Promise<{ slug: s
                 <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-cyan-200">OpenAdapt fit · {fitLabel}</p>
                 <h2 className="mt-3 text-xl font-semibold">When the path ends at the UI</h2>
                 <p className="mt-3 text-sm leading-6 text-slate-300">{ehr.openAdaptReason}</p>
+                <p className="mt-3 text-sm leading-6 text-slate-300">{remainingScreenNote(ehr.name)}</p>
                 <Button asChild className="mt-5 w-full bg-white text-[#10233f] hover:bg-slate-100">
-                  <a href="https://openadapt.ai/qualify" target="_blank" rel="noreferrer">Qualify this workflow <ArrowUpRight /></a>
+                  <a href={OPENADAPT_EXECUTE_URL} target="_blank" rel="noreferrer">OpenAdapt Execute <ArrowUpRight /></a>
                 </Button>
               </section>
 
