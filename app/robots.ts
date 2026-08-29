@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
+import { CANONICAL_ORIGIN } from "@/lib/links";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: { userAgent: "*", allow: "/" },
-    sitemap: "https://ehrintegrationdirectory.com/sitemap.xml",
+    sitemap: `${CANONICAL_ORIGIN}/sitemap.xml`,
   };
 }

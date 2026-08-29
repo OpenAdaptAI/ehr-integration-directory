@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { ehrs, workflows } from "@/lib/ehrs";
+import { CANONICAL_ORIGIN } from "@/lib/links";
 
-const origin = "https://ehrintegrationdirectory.com";
+const origin = CANONICAL_ORIGIN;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date("2026-08-28T00:00:00.000Z");

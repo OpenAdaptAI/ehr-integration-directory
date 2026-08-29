@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { OPENADAPT_EXECUTE_URL, OPENADAPT_PARTNERS_URL } from "@/lib/links";
 
 export function SiteHeader() {
   return (
@@ -16,9 +17,10 @@ export function SiteHeader() {
         <nav className="hidden items-center gap-5 text-sm text-slate-600 md:flex" aria-label="Primary navigation">
           <Link href="/methodology" className="transition-colors hover:text-slate-950">Methodology</Link>
           <Link href="/data" className="transition-colors hover:text-slate-950">Dataset</Link>
+          <a href={OPENADAPT_PARTNERS_URL} target="_blank" rel="noreferrer" className="transition-colors hover:text-slate-950">Partners</a>
           <Button asChild size="sm" className="bg-[#10233f] hover:bg-[#17345c]">
-            <a href="https://openadapt.ai/qualify" target="_blank" rel="noreferrer">
-              Qualify a workflow <ArrowUpRight />
+            <a href={OPENADAPT_EXECUTE_URL} target="_blank" rel="noreferrer">
+              OpenAdapt Execute <ArrowUpRight />
             </a>
           </Button>
         </nav>

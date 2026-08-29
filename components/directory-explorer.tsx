@@ -67,7 +67,7 @@ export function DirectoryExplorer() {
             <p className="eyebrow"><SlidersHorizontal className="size-3.5" /> Evidence explorer</p>
             <h2 id="directory-heading" className="mt-2 text-xl font-semibold tracking-tight text-slate-950">Compare public integration paths</h2>
           </div>
-          <p className="max-w-md text-xs leading-5 text-slate-500">Statuses describe the reviewed public evidence—not every contract, version, or local configuration.</p>
+          <p className="max-w-md text-xs leading-5 text-slate-500">Statuses describe the reviewed public evidence, not every contract, version, or local configuration.</p>
         </div>
         <div className="mt-5 grid gap-3 md:grid-cols-[1fr_210px_210px_auto]">
           <div className="relative">
