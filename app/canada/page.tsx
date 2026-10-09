@@ -28,9 +28,16 @@ function findCapability(ehr: EhrRecord, labels: string[]): Capability | undefine
   return ehr.capabilities.find((capability) => labels.includes(capability.label));
 }
 
+// Ocean's write row covers updates sent back to the network, not the chart, so it
+// keeps its own label, and the card adds the row about filing in the receiving chart.
+const NETWORK_WRITE_LABEL = "Updates sent back to Ocean";
+const FILING_LABEL = "Filing in the receiving chart";
+
 function ProfileCard({ ehr }: { ehr: EhrRecord }) {
   const write = findCapability(ehr, WRITE_LABELS);
+  const filing = findCapability(ehr, [FILING_LABEL]);
   const referral = findCapability(ehr, ["Referral network"]);
+  const writeHeading = write?.label === NETWORK_WRITE_LABEL ? NETWORK_WRITE_LABEL : "Writing data";
 
   return (
     <article className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
@@ -43,8 +50,14 @@ function ProfileCard({ ehr }: { ehr: EhrRecord }) {
       <dl className="mt-5 grid gap-4 text-sm">
         {write && (
           <div>
-            <dt className="flex flex-wrap items-center gap-2 font-semibold text-slate-900">Writing data <StatusBadge status={write.status} /></dt>
+            <dt className="flex flex-wrap items-center gap-2 font-semibold text-slate-900">{writeHeading} <StatusBadge status={write.status} /></dt>
             <dd className="mt-1.5 leading-6 text-slate-600">{write.detail}</dd>
+          </div>
+        )}
+        {filing && (
+          <div>
+            <dt className="flex flex-wrap items-center gap-2 font-semibold text-slate-900">{FILING_LABEL} <StatusBadge status={filing.status} /></dt>
+            <dd className="mt-1.5 leading-6 text-slate-600">{filing.detail}</dd>
           </div>
         )}
         <div>

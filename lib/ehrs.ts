@@ -570,7 +570,11 @@ export const ehrs: EhrRecord[] = [
         detail:
           "TELUS calls the API a paid feature that's currently limited to a select few customers. Access needs a signed contract, an intake questionnaire, and a privacy and security review before production.",
       },
-      { label: "Developer test path", status: "documented", detail: "Subscribers get a sandbox CHR domain with fake patient data." },
+      {
+        label: "Developer test path",
+        status: "documented",
+        detail: "After the contract is signed, TELUS's onboarding steps give you credentials for a sandbox CHR domain. You build and test there before you ask for production access.",
+      },
       {
         label: "Audit trail",
         status: "documented",
@@ -598,7 +602,7 @@ export const ehrs: EhrRecord[] = [
     access: "WELLSTAR Developer Program: apply with a pilot clinic's letter of support, sign a sandbox agreement, then pass a conformance review",
     surfaces: ["WELLSTAR Developer Program", "REST (/ws/)", "OAuth 1.0", "Ocean eReferral"],
     summary:
-      "OSCAR Pro is WELLSTAR's edition of the open-source OSCAR EMR. WELLSTAR runs a developer program that it describes as one integration path for OSCAR Pro and Juno. Open-source OSCAR also documents a REST layer secured with OAuth 1.0.",
+      "OSCAR Pro is WELLSTAR's edition of the open-source OSCAR EMR. WELLSTAR runs a developer program that it describes as a single integration path for OSCAR Pro and Juno. Open-source OSCAR also documents a REST layer secured with OAuth 1.0.",
     verdict:
       "There's a documented route, but it runs through WELLSTAR's program and each clinic's setup.",
     nextStep:

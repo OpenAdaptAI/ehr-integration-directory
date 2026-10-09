@@ -223,7 +223,7 @@ export default function NoWriteApiPage() {
             OpenAdapt publishes this directory and sells software for the fourth option above. A person shows the task once while OpenAdapt records it. OpenAdapt turns that recording into an automation that enters the data through the same screens and checks the saved record before it reports a case as done.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
-            OpenAdapt has no partnership with any vendor listed here, and a profile in this directory doesn&apos;t mean OpenAdapt has run on that EMR. Before it goes live on a clinic&apos;s EMR, it gets a readiness test on that clinic&apos;s setup with the clinic&apos;s own cases.
+            OpenAdapt has no partnership with any vendor listed here, and a profile in this directory doesn&apos;t mean OpenAdapt has run on that EMR. Before an automation goes live on a clinic&apos;s EMR, it gets a readiness test on that clinic&apos;s setup with the clinic&apos;s own cases.
           </p>
           <div className="mt-5 flex flex-col gap-2 text-sm font-semibold sm:flex-row sm:gap-6">
             <a href={OPENADAPT_HOME_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-[#0b766e] hover:underline">

@@ -154,3 +154,14 @@ test("the explainer labels its illustration, cites its numbers, and discloses Op
     assert.doesNotMatch(source, banned);
   }
 });
+
+test("the Canada comparison keeps Ocean's network updates apart from filing in the chart", async () => {
+  const [canada, data] = await Promise.all([read("app/canada/page.tsx"), read("lib/ehrs.ts")]);
+  const ocean = recordBlock(data, "ocean");
+
+  assert.match(ocean, /label: "Updates sent back to Ocean"/);
+  assert.match(ocean, /label: "Filing in the receiving chart"/);
+  assert.match(canada, /NETWORK_WRITE_LABEL = "Updates sent back to Ocean"/);
+  assert.match(canada, /FILING_LABEL = "Filing in the receiving chart"/);
+  assert.match(canada, /\{filing && \(/);
+});
