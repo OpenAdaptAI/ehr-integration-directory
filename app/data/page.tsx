@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, Download, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site-header";
-import { ehrs } from "@/lib/ehrs";
+import { ehrs, latestReview } from "@/lib/ehrs";
 
 export const metadata: Metadata = {
   title: "Dataset",
@@ -28,7 +28,7 @@ export default function DataPage() {
         </header>
 
         <section className="mt-12 grid gap-4 sm:grid-cols-3">
-          {[{ label: "Profiles", value: ehrs.length }, { label: "Public sources", value: sourceCount }, { label: "Review date", value: "2026-08-28" }].map((stat) => <article key={stat.label} className="rounded-2xl border border-slate-200 bg-white p-6"><p className="font-mono text-[10px] uppercase tracking-[0.1em] text-slate-400">{stat.label}</p><p className="mt-3 text-3xl font-semibold tracking-tight text-[#10233f]">{stat.value}</p></article>)}
+          {[{ label: "Profiles", value: ehrs.length }, { label: "Public sources", value: sourceCount }, { label: "Latest review", value: latestReview }].map((stat) => <article key={stat.label} className="rounded-2xl border border-slate-200 bg-white p-6"><p className="font-mono text-[10px] uppercase tracking-[0.1em] text-slate-400">{stat.label}</p><p className="mt-3 text-3xl font-semibold tracking-tight text-[#10233f]">{stat.value}</p></article>)}
         </section>
 
         <section className="mt-10 overflow-hidden rounded-2xl border border-slate-200 bg-white">

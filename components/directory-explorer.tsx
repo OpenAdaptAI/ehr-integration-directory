@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Search, SlidersHorizontal, X } from "lucide-react";
-import { EhrRecord, ehrs, statusLabels } from "@/lib/ehrs";
+import { EhrRecord, ehrs, latestReview, searchText, statusLabels } from "@/lib/ehrs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -50,7 +50,7 @@ export function DirectoryExplorer() {
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return ehrs.filter((ehr) => {
-      const matchesQuery = !needle || [ehr.name, ehr.vendor, ehr.market, ehr.summary, ...ehr.surfaces].join(" ").toLowerCase().includes(needle);
+      const matchesQuery = !needle || searchText(ehr).toLowerCase().includes(needle);
       const matchesStatus = status === "all" || ehr.status === status;
       const matchesSurface = surface === "all" || ehr.surfaces.includes(surface);
       return matchesQuery && matchesStatus && matchesSurface;
@@ -67,12 +67,15 @@ export function DirectoryExplorer() {
             <p className="eyebrow"><SlidersHorizontal className="size-3.5" /> Evidence explorer</p>
             <h2 id="directory-heading" className="mt-2 text-xl font-semibold tracking-tight text-slate-950">Compare public integration paths</h2>
           </div>
-          <p className="max-w-md text-xs leading-5 text-slate-500">Statuses describe the reviewed public evidence, not every contract, version, or local configuration.</p>
+          <div className="max-w-md text-xs leading-5 text-slate-500">
+            <p>Statuses describe the reviewed public evidence, not every contract, version, or local configuration.</p>
+            <Link href="/canada" className="mt-1 inline-flex items-center gap-1 font-semibold text-[#0b766e] hover:underline">Compare Canadian EMRs <ArrowRight className="size-3.5" /></Link>
+          </div>
         </div>
         <div className="mt-5 grid gap-3 md:grid-cols-[1fr_210px_210px_auto]">
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-            <Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search EHR, vendor, market, or interface" className="h-10 border-slate-300 bg-white pl-9" aria-label="Search directory" />
+            <Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search EHR, vendor, country, or interface" className="h-10 border-slate-300 bg-white pl-9" aria-label="Search directory" />
           </div>
           <Select value={status} onValueChange={setStatus}>
             <SelectTrigger className="h-10 w-full border-slate-300 bg-white" aria-label="Filter by evidence status"><SelectValue placeholder="Evidence status" /></SelectTrigger>
@@ -96,14 +99,14 @@ export function DirectoryExplorer() {
 
       <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.1em] text-slate-500 sm:px-7">
         <span>{filtered.length} of {ehrs.length} profiles</span>
-        <span>Reviewed 2026-08-28</span>
+        <span>Latest review {latestReview}</span>
       </div>
       <div>
         {filtered.map((ehr) => <RecordCard key={ehr.slug} ehr={ehr} />)}
         {filtered.length === 0 && (
           <div className="px-6 py-16 text-center">
             <p className="font-semibold text-slate-900">No matching profiles</p>
-            <p className="mt-2 text-sm text-slate-500">Clear a filter or try a vendor, market, or interface name.</p>
+            <p className="mt-2 text-sm text-slate-500">Clear a filter or try a vendor, country, or interface name.</p>
           </div>
         )}
       </div>
