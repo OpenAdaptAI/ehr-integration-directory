@@ -80,7 +80,8 @@ test("product links go to the explainer or partners, not a workflow marketplace"
   assert.match(sources[0], /https:\/\/openadapt\.ai\/partners/);
   assert.match(sources[0], /NO_WRITE_API_PATH = "\/no-write-api"/);
   assert.match(sources[0], /Do not infer that/);
-  assert.match(sources[0], /read the saved record back before it reports/);
+  assert.match(sources[0], /counts as done only after the saved record is read back some other way than the screen/);
+  assert.match(sources[0], /a person confirms the record/);
 
   for (const source of sources) {
     assert.doesNotMatch(source, /openadapt\.ai\/qualify/);
@@ -111,6 +112,13 @@ test("covers the Canadian ambulatory EMRs and Ocean with sourced, dated records"
     assert.match(block, /lastReviewed: "\d{4}-\d{2}-\d{2}"/, `${slug} needs a review date`);
     assert.match(block, /capabilities: \[/, `${slug} needs capability rows`);
     assert.match(block, /sources: \[[\s\S]*(url: "https:\/\/|[A-Z_]+,)/, `${slug} needs sources`);
+  }
+
+  // No public read route was found for PS Suite or Med Access, so neither profile may promise a record check.
+  for (const slug of ["ps-suite", "med-access"]) {
+    const block = recordBlock(data, slug);
+    assert.doesNotMatch(block, /automates and checks/);
+    assert.match(block, /a person would confirm each entry/);
   }
 
   assert.match(data, /export function isCanadian/);
@@ -148,6 +156,10 @@ test("the explainer labels its illustration, cites its numbers, and discloses Op
   assert.match(explainer, /pmc\.ncbi\.nlm\.nih\.gov\/articles\/PMC7660949/);
   assert.match(explainer, /hfma\.org\.uk/);
   assert.match(explainer, /it doesn't retry on its own/);
+  // A screen read alone is not a record check: without a second route, a person confirms.
+  assert.match(explainer, /through a second route, such as a read-only API/);
+  assert.match(explainer, /finished but not checked/);
+  assert.doesNotMatch(explainer, /OpenAdapt automates and checks/);
 
   const banned = /seamless|robust|leverage|crucial|delve|unlock|empower|cutting-edge|game-changer|transformative|\bSeal\b|VERIFIED|HALTED|RECONCILIATION_REQUIRED|\u2014/i;
   for (const source of [explainer, canada, links]) {

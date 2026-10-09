@@ -467,7 +467,7 @@ export const ehrs: EhrRecord[] = [
       "Contact TELUS Health with the exact operation. Ask whether a partner add-on can write it, and how a clinic approves and enables the add-on.",
     openAdaptFit: "conditional",
     openAdaptReason:
-      "Ask TELUS first. If no add-on covers the step, staff type it in by hand today, and that's the kind of screen work OpenAdapt automates and checks.",
+      "Ask TELUS first. If no add-on covers the step, staff type it in by hand today. That typing is the kind of screen work OpenAdapt automates. We found no public way to read the saved record back, so a person would confirm each entry in the chart.",
     capabilities: [
       { label: "Public API reference", status: "not-found", detail: "Not found in the reviewed public sources; this is not a claim of non-support." },
       { label: "Partner add-ons", status: "documented", detail: "TELUS's add-on page covers CHR, Med Access, and PS Suite, and lists add-ons from outside partners." },
@@ -514,7 +514,7 @@ export const ehrs: EhrRecord[] = [
       "Contact TELUS Health with the exact operation, and ask which add-on or partner route covers it.",
     openAdaptFit: "conditional",
     openAdaptReason:
-      "Ask TELUS first. If no add-on covers the step, staff type it in by hand today, and that's the kind of screen work OpenAdapt automates and checks.",
+      "Ask TELUS first. If no add-on covers the step, staff type it in by hand today. That typing is the kind of screen work OpenAdapt automates. We found no public way to read the saved record back, so a person would confirm each entry in the chart.",
     capabilities: [
       { label: "Public API reference", status: "not-found", detail: "Not found in the reviewed public sources; this is not a claim of non-support." },
       { label: "Partner add-ons", status: "documented", detail: "TELUS's add-on page covers Med Access and lists add-ons from outside partners." },

@@ -37,8 +37,8 @@ export default function Home() {
               <p className="mt-6 max-w-3xl text-base leading-7 text-slate-600 sm:text-lg">
                 Compare public APIs, FHIR and HL7 capabilities, partner requirements, sandbox access, documented write operations, and workflows that still end at the UI.
               </p>
-              <Link href={CANADA_PATH} className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#0b766e] hover:underline">
-                Compare {canadianEhrs.length} Canadian profiles, including the Ocean referral network <ArrowRight className="size-4" />
+              <Link href={CANADA_PATH} className="mt-5 inline-block text-sm font-semibold text-[#0b766e] hover:underline">
+                Compare {canadianEhrs.length} Canadian profiles, including the Ocean referral network <ArrowRight className="ml-1 inline size-4 align-[-3px]" />
               </Link>
             </div>
             <aside className="self-end rounded-2xl border border-slate-200 bg-white p-5">

@@ -26,7 +26,7 @@ type Owner = "Your product" | "Staff" | "Automation" | "A person";
 
 const ownerStyles: Record<Owner, string> = {
   "Your product": "border-slate-200 bg-slate-100 text-slate-700",
-  Staff: "border-amber-200 bg-amber-50 text-amber-900",
+  Staff: "border-slate-300 bg-white text-slate-700",
   Automation: "border-teal-200 bg-teal-50 text-teal-900",
   "A person": "border-amber-200 bg-amber-50 text-amber-900",
 };
@@ -62,7 +62,7 @@ const steps: { step: string; today: Cell; after: Cell }[] = [
     today: { owner: "Staff", text: "Whether anyone checks the saved record depends on the clinic." },
     after: {
       owner: "Automation",
-      text: "It reads the saved record back and compares it with what your product sent. If they match, the case is done and checked. If they don't, the case isn't marked done, and a person gets it with what the automation found.",
+      text: "It reads the saved record back through a second route, such as a read-only API, and compares it with what your product sent. A match means the case is done and checked. A mismatch goes to a person with what the automation found. Without a second route, the case comes back as finished but not checked, and a person confirms it in the chart.",
     },
   },
   {
@@ -78,7 +78,7 @@ const steps: { step: string; today: Cell; after: Cell }[] = [
     today: { owner: "Staff", text: "A status that someone updates by hand." },
     after: {
       owner: "Automation",
-      text: "A receipt for each case that shows what was entered and how it was checked, plus the reason for each case that stopped.",
+      text: "A receipt for each case that shows what was entered and what was checked, plus the reason for each case that stopped.",
     },
   },
 ];
@@ -150,7 +150,7 @@ export default function NoWriteApiPage() {
               <span className="font-mono text-[10px] text-slate-400">04</span>
               <h3 className="mt-4 font-semibold text-slate-900">Automate the screen and check the result</h3>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Software repeats the clicks and typing a staff member does, through the same screens. Before typing, it confirms it&apos;s in the right patient&apos;s chart. After saving, it reads the record back and compares it with what your product sent. When something doesn&apos;t match, it stops and asks a person.
+                Software repeats the clicks and typing a staff member does, through the same screens. Before typing, it confirms it&apos;s in the right patient&apos;s chart. After saving, it reads the record back through a second route, such as a read-only API, and compares it with what your product sent. Without a second route, a person confirms the saved record. When something doesn&apos;t match, it stops and asks a person.
               </p>
             </article>
           </div>
@@ -186,7 +186,7 @@ export default function NoWriteApiPage() {
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <div className="rounded-2xl border border-slate-200 bg-white p-5">
               <h3 className="font-semibold text-slate-900">What changes for staff</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">They stop typing every case. They handle the cases that stopped, and each one arrives with the reason.</p>
+              <p className="mt-2 text-sm leading-6 text-slate-600">They stop typing every case. They handle the cases that stopped, and each one arrives with the reason. If the EMR has no second route to read the record, they also confirm each saved case in the chart.</p>
             </div>
             <div className="rounded-2xl border border-slate-200 bg-white p-5">
               <h3 className="font-semibold text-slate-900">What stays the same</h3>
@@ -220,7 +220,7 @@ export default function NoWriteApiPage() {
           <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-slate-500">Disclosure</p>
           <h2 id="disclosure-heading" className="mt-2 text-xl font-semibold text-[#10233f]">About OpenAdapt</h2>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
-            OpenAdapt publishes this directory and sells software for the fourth option above. A person shows the task once while OpenAdapt records it. OpenAdapt turns that recording into an automation that enters the data through the same screens and checks the saved record before it reports a case as done.
+            OpenAdapt publishes this directory and sells software for the fourth option above. A person shows the task once while OpenAdapt records it. OpenAdapt turns that recording into an automation that enters the data through the same screens. It reports a case as done and checked only after it reads the saved record back through a second route. Without one, a person confirms the record.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
             OpenAdapt has no partnership with any vendor listed here, and a profile in this directory doesn&apos;t mean OpenAdapt has run on that EMR. Before an automation goes live on a clinic&apos;s EMR, it gets a readiness test on that clinic&apos;s setup with the clinic&apos;s own cases.

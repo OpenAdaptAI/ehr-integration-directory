@@ -52,8 +52,8 @@ export function RekeyEstimate() {
         />
         <p className="mt-2 text-xs leading-5 text-slate-500">About 10 to 12 in the two studies above.</p>
       </div>
-      <div className="rounded-xl bg-[#fff7e8] p-4" aria-live="polite">
-        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-amber-900">Staff time today</p>
+      <div className="rounded-xl bg-[#f7f6f1] p-4" aria-live="polite">
+        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-slate-500">Staff time today</p>
         <p className="mt-2 text-2xl font-semibold tracking-tight text-[#10233f]">{formatHours(weeklyHours)} hours a week</p>
         <p className="mt-1 text-sm text-slate-600">About {formatHours(monthlyHours)} hours a month</p>
       </div>

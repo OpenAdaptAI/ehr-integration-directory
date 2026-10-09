@@ -142,7 +142,7 @@ export default function CanadaPage() {
         <section className="mt-10 grid gap-5 rounded-2xl bg-[#10233f] p-7 text-white md:grid-cols-[1fr_auto] md:items-center md:p-9">
           <div>
             <h2 className="text-2xl font-semibold tracking-tight">Waiting on access, or no route for your step?</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">See what teams do in the meantime, and what changes for staff when a referral is entered and checked through the EMR&apos;s screens.</p>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">See what teams do in the meantime, and what changes for staff when software enters referrals through the EMR&apos;s screens.</p>
           </div>
           <Link href={NO_WRITE_API_PATH} className="inline-flex h-10 items-center gap-2 rounded-md bg-white px-4 text-sm font-semibold text-[#10233f] hover:bg-slate-100">
             See the before and after <ArrowRight className="size-4" />
