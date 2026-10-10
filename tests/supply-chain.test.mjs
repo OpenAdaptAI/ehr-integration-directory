@@ -38,6 +38,7 @@ test("CI fails on high or critical advisories in production dependencies", async
 
   assert.ok(install >= 0, "CI no longer runs npm ci");
   assert.ok(audit > install, "CI must run npm audit after npm ci");
+  assert.doesNotMatch(ci, /continue-on-error:\s*true/, "CI must stop on a failed audit");
 });
 
 test("Dependabot proposes npm updates and groups Next.js packages", async () => {
