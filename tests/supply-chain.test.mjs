@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import test from "node:test";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
@@ -46,4 +46,31 @@ test("Dependabot proposes npm updates and groups Next.js packages", async () => 
   assert.match(config, /package-ecosystem: npm\n/);
   assert.match(config, /- next\n/);
   assert.match(config, /- eslint-config-next\n/);
+});
+
+test("workflows pin every remote action to a full commit SHA", async () => {
+  const dir = new URL("../.github/workflows/", import.meta.url);
+  const files = (await readdir(dir)).filter((name) => /\.ya?ml$/.test(name));
+  const unpinned = [];
+
+  assert.ok(files.length > 0, "no workflow files found");
+  for (const file of files) {
+    const lines = (await readFile(new URL(file, dir), "utf8")).split("\n");
+    lines.forEach((line, index) => {
+      const ref = line.match(/^\s*(?:-\s+)?uses:\s*["']?([^\s"'#]+)/)?.[1];
+      if (!ref || ref.startsWith("./")) return;
+      const pinned = ref.startsWith("docker://")
+        ? /@sha256:[0-9a-f]{64}$/.test(ref)
+        : /@[0-9a-f]{40}$/.test(ref);
+      if (!pinned) unpinned.push(`${file}:${index + 1} ${ref}`);
+    });
+  }
+
+  assert.deepEqual(unpinned, [], "pin these actions to a commit SHA");
+});
+
+test("Dependabot proposes updates to pinned GitHub Actions", async () => {
+  const config = await read(".github/dependabot.yml");
+
+  assert.match(config, /package-ecosystem: github-actions\n/);
 });
