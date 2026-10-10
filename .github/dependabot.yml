@@ -1,0 +1,15 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    groups:
+      # eslint-config-next must match the Next.js version, so update them together.
+      next:
+        patterns:
+          - next
+          - eslint-config-next
