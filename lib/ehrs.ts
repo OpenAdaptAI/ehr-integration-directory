@@ -922,7 +922,7 @@ export const workflows: Workflow[] = [
     verify:
       "Read the charges on the visit back and compare codes, modifiers, units, date of service, and provider to the source. Count the lines, so you know a retry didn't post one twice. Then check the claim's status.",
     failureModes: [
-      "A retry after a timeout posts the same charge twice.",
+      "A retry after a timeout can post the same charge twice. Read the visit's charges before you try again.",
       "Charges attach to the wrong visit when the patient has two visits on the same day.",
       "Billing edits reject a code and modifier combination, and the charge waits in a work queue.",
       "Charges post in a nightly batch, so a read right after entry doesn't show them yet.",
@@ -1034,7 +1034,7 @@ export function surfaceFamily(surface: string): string {
 /** Interface filter options, one per family that at least one record lists. */
 export const surfaceOptions: string[] = Array.from(
   new Set(ehrs.flatMap((ehr) => ehr.surfaces.map(surfaceFamily))),
-).sort();
+).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase(), "en"));
 
 export function matchesSurface(ehr: EhrRecord, family: string): boolean {
   return ehr.surfaces.some((surface) => surfaceFamily(surface) === family);

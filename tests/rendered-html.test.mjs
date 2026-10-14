@@ -184,9 +184,16 @@ const loadData = () => import("../lib/ehrs.ts");
 const coverageOverclaim = /\b(all|every) (major )?(EHR|EMR)s?\b/i;
 
 test("the home page scopes its coverage claim to the profiles it has", async () => {
-  const [home, layout, readme] = await Promise.all([read("app/page.tsx"), read("app/layout.tsx"), read("README.md")]);
+  const { readdir } = await import("node:fs/promises");
+  const pages = (await readdir(new URL("../app", import.meta.url), { recursive: true }))
+    .filter((path) => /\.tsx?$/.test(path))
+    .map((path) => `app/${path}`);
+  assert.ok(pages.length > 5, "expected to find the app's pages");
+  const [home, ...sources] = await Promise.all(
+    ["app/page.tsx", ...pages, "lib/links.ts", "lib/ehrs.ts", "README.md"].map(read),
+  );
 
-  for (const source of [home, layout, readme]) {
+  for (const source of [home, ...sources]) {
     assert.doesNotMatch(source, coverageOverclaim);
   }
   const h1 = home.match(/<h1[^>]*>([\s\S]*?)<\/h1>/);

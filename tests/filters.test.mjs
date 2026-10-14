@@ -47,6 +47,11 @@ test("no interface option repeats another with a version or suffix added", () =>
   }
 });
 
+test("interface options are in alphabetical order, ignoring case", () => {
+  const sorted = [...data.surfaceOptions].sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase(), "en"));
+  assert.deepEqual(data.surfaceOptions, sorted);
+});
+
 test("the explorer builds its filters from the shared options", async () => {
   const explorer = await readFile(new URL("../components/directory-explorer.tsx", import.meta.url), "utf8");
 

@@ -74,3 +74,14 @@ test("workflow guides avoid banned words and never promise a safe retry", async 
   // A timeout after sending is uncertain: the guide must say to look before trying again.
   assert.match(guideText(data.getWorkflow("scheduling-writeback")), /Search for the appointment before you try again/);
 });
+
+test("every failure mode about a timeout or retry says to check the record before trying again", () => {
+  const uncertain = workflows.flatMap((workflow) =>
+    workflow.failureModes.filter((failure) => /time(s|d)? ?out|retry|try again/i.test(failure)).map((failure) => [workflow.slug, failure]),
+  );
+  assert.ok(uncertain.length >= 2, "expected the scheduling and claims guides to cover timeouts");
+  for (const [slug, failure] of uncertain) {
+    assert.match(failure, /before you try again/, `${slug}: "${failure}" should say to check the record before trying again`);
+    assert.doesNotMatch(failure, /\bposts the same\b/, `${slug}: a retry can post twice; it doesn't always`);
+  }
+});
