@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      # eslint-config-next must match the Next.js version, so update them together.
+      next:
+        patterns:
+          - next
+          - eslint-config-next
+
+  # Workflows pin actions to commit SHAs. Dependabot reads the trailing
+  # version comment and proposes the new SHA when a release ships.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
