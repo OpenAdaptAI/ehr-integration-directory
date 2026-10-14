@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, CheckCircle2, GitBranch, SearchCheck, ShieldAlert } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, ExternalLink, GitBranch, ListChecks, SearchCheck, ShieldAlert, Target, TriangleAlert } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { NO_WRITE_API_PATH, remainingScreenNote } from "@/lib/links";
-import { getWorkflow, workflows } from "@/lib/ehrs";
+import { fhirResourceUrl, getWorkflow, workflows } from "@/lib/ehrs";
 
 export function generateStaticParams() {
   return workflows.map((workflow) => ({ slug: workflow.slug }));
@@ -43,7 +43,38 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
           <p className="mt-6 text-lg leading-8 text-slate-600">{workflow.description} This guide frames the questions that determine whether the safest practical path is a vendor interface, an approved integration partner, or a controlled UI workflow.</p>
         </header>
 
-        <section className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-slate-200 bg-slate-200 md:grid-cols-2" aria-label="Qualification gates">
+        <div className="mt-12 grid gap-5 lg:grid-cols-[1fr_340px]">
+          <div className="space-y-5">
+            <section aria-labelledby="state-heading" className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-7">
+              <div className="flex items-center gap-2"><Target className="size-5 text-[#0b766e]" /><h2 id="state-heading" className="text-lg font-semibold text-slate-900">What should change in the record</h2></div>
+              <p className="mt-3 text-sm leading-6 text-slate-600">{workflow.stateChange}</p>
+            </section>
+            <section aria-labelledby="verify-heading" className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-7">
+              <div className="flex items-center gap-2"><ListChecks className="size-5 text-[#0b766e]" /><h2 id="verify-heading" className="text-lg font-semibold text-slate-900">How to check that it saved</h2></div>
+              <p className="mt-3 text-sm leading-6 text-slate-600">{workflow.verify}</p>
+            </section>
+            <section aria-labelledby="failures-heading" className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-7">
+              <div className="flex items-center gap-2"><TriangleAlert className="size-5 text-slate-500" /><h2 id="failures-heading" className="text-lg font-semibold text-slate-900">What often goes wrong</h2></div>
+              <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-600">
+                {workflow.failureModes.map((failure) => <li key={failure}>{failure}</li>)}
+              </ul>
+            </section>
+          </div>
+          <section aria-labelledby="fhir-heading" className="self-start rounded-2xl border border-slate-200 bg-white p-6">
+            <h2 id="fhir-heading" className="font-semibold text-slate-900">Where it lives in FHIR R4</h2>
+            <ul className="mt-4 space-y-4">
+              {workflow.resources.map((resource) => (
+                <li key={resource.name}>
+                  <a href={fhirResourceUrl(resource.name)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold text-[#0b766e] hover:underline">{resource.name}<ExternalLink className="size-3.5" /></a>
+                  <p className="mt-1 text-sm leading-6 text-slate-600">{resource.role}</p>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-5 border-t border-slate-100 pt-4 text-xs leading-5 text-slate-500">Names and links follow the HL7 FHIR R4 specification. EHRs expose different subsets, and many expose a resource for reading only. Check the EHR&apos;s profile in <Link href="/#directory-heading" className="font-medium text-[#0b766e] hover:underline">the directory</Link> before you plan a write.</p>
+          </section>
+        </div>
+
+        <section className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-slate-200 bg-slate-200 md:grid-cols-2" aria-label="Qualification gates">
           {gates.map((gate, index) => {
             const Icon = gate.icon;
             return (
