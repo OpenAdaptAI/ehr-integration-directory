@@ -28,6 +28,7 @@ export type EhrRecord = {
   summary: string;
   verdict: string;
   nextStep: string;
+  /** OpenAdapt's own product view, shown on profile pages. It isn't evidence, so the dataset leaves it out. */
   openAdaptFit: "low" | "conditional" | "strong";
   openAdaptReason: string;
   capabilities: Capability[];
@@ -837,6 +838,19 @@ export function isCanadian(ehr: EhrRecord): boolean {
 }
 
 export const canadianEhrs = ehrs.filter(isCanadian);
+
+/** A record as the public dataset publishes it: the evidence, without OpenAdapt's own product view. */
+export type PublicEhrRecord = Omit<EhrRecord, "openAdaptFit" | "openAdaptReason">;
+
+export function publicRecord(ehr: EhrRecord): PublicEhrRecord {
+  const record: Partial<EhrRecord> = { ...ehr };
+  delete record.openAdaptFit;
+  delete record.openAdaptReason;
+  return record as PublicEhrRecord;
+}
+
+/** The records that /api/directory publishes. */
+export const publicRecords: PublicEhrRecord[] = ehrs.map(publicRecord);
 
 /** The most recent review date in the dataset, as YYYY-MM-DD. */
 export const latestReview: string = ehrs.reduce(

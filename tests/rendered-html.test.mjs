@@ -177,3 +177,53 @@ test("the Canada comparison keeps Ocean's network updates apart from filing in t
   assert.match(canada, /FILING_LABEL = "Filing in the receiving chart"/);
   assert.match(canada, /\{filing && \(/);
 });
+
+// lib/ehrs.ts has no imports, so Node's built-in type stripping can load it directly.
+const loadData = () => import("../lib/ehrs.ts");
+
+const coverageOverclaim = /\b(all|every) (major )?(EHR|EMR)s?\b/i;
+
+test("the home page scopes its coverage claim to the profiles it has", async () => {
+  const [home, layout, readme] = await Promise.all([read("app/page.tsx"), read("app/layout.tsx"), read("README.md")]);
+
+  for (const source of [home, layout, readme]) {
+    assert.doesNotMatch(source, coverageOverclaim);
+  }
+  const h1 = home.match(/<h1[^>]*>([\s\S]*?)<\/h1>/);
+  assert.ok(h1, "home page has no h1");
+  assert.match(h1[1], /\{ehrs\.length\}/, "the h1 should count the profiles instead of claiming coverage");
+});
+
+test("OpenAdapt's own product view stays out of the dataset and is labeled on profiles", async () => {
+  const [{ ehrs, publicRecords }, route, profile, methodology, dataPage] = await Promise.all([
+    loadData(),
+    read("app/api/directory/route.ts"),
+    read("app/ehr/[slug]/page.tsx"),
+    read("app/methodology/page.tsx"),
+    read("app/data/page.tsx"),
+  ]);
+
+  assert.ok(Array.isArray(publicRecords), "lib/ehrs.ts must export publicRecords");
+  assert.equal(publicRecords.length, ehrs.length);
+  for (const record of publicRecords) {
+    assert.ok(!("openAdaptFit" in record), `${record.slug} publishes openAdaptFit`);
+    assert.ok(!("openAdaptReason" in record), `${record.slug} publishes openAdaptReason`);
+    assert.ok(record.slug && record.status && record.sources.length > 0, "public records keep the evidence");
+  }
+  // The full records still carry the view for the profile pages.
+  assert.ok(ehrs.every((ehr) => ehr.openAdaptFit && ehr.openAdaptReason));
+
+  assert.match(route, /records: publicRecords/);
+  assert.doesNotMatch(route, /records: ehrs\b/);
+
+  // The profile box that shows the fit label says whose view it is.
+  const box = profile.slice(profile.indexOf("{fitLabel}") - 400, profile.indexOf("{ehr.openAdaptReason}"));
+  assert.match(box, /OpenAdapt&apos;s view · \{fitLabel\}/);
+  assert.match(box, /not a finding from the sources on this page/);
+  assert.match(box, /isn&apos;t part of the dataset/);
+  assert.doesNotMatch(profile, /OpenAdapt fit · /);
+
+  assert.match(methodology, /OpenAdapt publishes this directory/);
+  assert.match(methodology, /business interest/);
+  assert.match(dataPage, /leaves out OpenAdapt&apos;s own product view/);
+});
