@@ -1,4 +1,4 @@
-import { ehrs, latestReview } from "@/lib/ehrs";
+import { latestReview, publicRecords } from "@/lib/ehrs";
 
 export function GET() {
   return Response.json({
@@ -7,7 +7,7 @@ export function GET() {
     license: "CC-BY-4.0",
     lastReviewed: latestReview,
     methodology: "/methodology",
-    records: ehrs,
+    records: publicRecords,
   }, {
     headers: {
       "Content-Disposition": "attachment; filename=ehr-integration-directory.json",

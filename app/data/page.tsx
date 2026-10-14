@@ -22,7 +22,7 @@ export default function DataPage() {
           <div>
             <p className="eyebrow">Open data</p>
             <h1 className="mt-5 text-4xl font-semibold tracking-[-0.04em] text-[#10233f] sm:text-6xl">Reuse the evidence.</h1>
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-600">The dataset exposes profile summaries, status labels, access paths, capability checks, sources, and review dates.</p>
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-600">The dataset exposes profile summaries, status labels, access paths, capability checks, sources, and review dates. It leaves out OpenAdapt&apos;s own product view, which appears only on profile pages.</p>
           </div>
           <Button asChild className="bg-[#10233f] hover:bg-[#17345c]"><a href="/api/directory" download="ehr-integration-directory.json"><Download /> Download JSON</a></Button>
         </header>

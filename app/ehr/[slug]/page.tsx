@@ -112,8 +112,9 @@ export default async function EhrProfile({ params }: { params: Promise<{ slug: s
               </section>
 
               <section className="rounded-2xl bg-[#10233f] p-6 text-white">
-                <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-cyan-200">OpenAdapt fit · {fitLabel}</p>
+                <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-cyan-200">OpenAdapt&apos;s view · {fitLabel}</p>
                 <h2 className="mt-3 text-xl font-semibold">When the path ends at a screen</h2>
+                <p className="mt-3 text-xs leading-5 text-slate-400">This is the publisher&apos;s own product view, not a finding from the sources on this page. It isn&apos;t part of the dataset.</p>
                 <p className="mt-3 text-sm leading-6 text-slate-300">{ehr.openAdaptReason}</p>
                 <p className="mt-3 text-sm leading-6 text-slate-300">{remainingScreenNote(ehr.name)}</p>
                 <Button asChild className="mt-5 w-full bg-white text-[#10233f] hover:bg-slate-100">

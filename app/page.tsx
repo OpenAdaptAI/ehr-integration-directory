@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight, BookOpen, Database, FileCheck2, ShieldCheck } from "lucide-react";
 import { DirectoryExplorer } from "@/components/directory-explorer";
 import { SiteHeader } from "@/components/site-header";
-import { canadianEhrs, formatReviewDate, latestReview, workflows } from "@/lib/ehrs";
+import { canadianEhrs, ehrs, formatReviewDate, latestReview, workflows } from "@/lib/ehrs";
 import { CANADA_PATH, CANONICAL_ORIGIN, NO_WRITE_API_PATH } from "@/lib/links";
 
 export default function Home() {
@@ -32,7 +32,7 @@ export default function Home() {
             <div>
               <p className="eyebrow"><ShieldCheck className="size-3.5" /> Source-linked, operation-specific evidence</p>
               <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[1.04] tracking-[-0.045em] text-[#10233f] sm:text-6xl">
-                Find the supported path into every major EHR.
+                Find the supported path into {ehrs.length} EHRs and related systems.
               </h1>
               <p className="mt-6 max-w-3xl text-base leading-7 text-slate-600 sm:text-lg">
                 Compare public APIs, FHIR and HL7 capabilities, partner requirements, sandbox access, documented write operations, and workflows that still end at the UI.

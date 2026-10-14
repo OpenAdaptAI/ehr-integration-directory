@@ -52,6 +52,11 @@ export default function MethodologyPage() {
         </section>
 
         <section className="mt-12 rounded-2xl border border-slate-200 bg-white p-7">
+          <h2 className="text-xl font-semibold text-[#10233f]">Who publishes this</h2>
+          <p className="mt-4 text-sm leading-7 text-slate-600">OpenAdapt publishes this directory. OpenAdapt also makes software that enters data through an EHR&apos;s screens when no usable API covers a step, so it has a business interest in steps that end at a screen. Each profile page has a box labeled &ldquo;OpenAdapt&apos;s view&rdquo;. That box is OpenAdapt&apos;s own product view, not a finding from the cited sources, and the dataset leaves it out.</p>
+        </section>
+
+        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-7">
           <h2 className="text-xl font-semibold text-[#10233f]">Coverage and corrections</h2>
           <p className="mt-4 text-sm leading-7 text-slate-600">The launch dataset favors vendors with useful public evidence. It is not a market-share ranking or a complete catalog. Each record carries a review date. To challenge a record, send an official source URL, the product and version, the exact operation, and the access context.</p>
           <a href="mailto:directory@openadapt.ai?subject=EHR%20directory%20correction" className="mt-4 inline-block text-sm font-semibold text-[#0b766e] hover:underline">Submit a correction</a>

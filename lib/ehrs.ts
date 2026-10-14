@@ -28,6 +28,7 @@ export type EhrRecord = {
   summary: string;
   verdict: string;
   nextStep: string;
+  /** OpenAdapt's own product view, shown on profile pages. It isn't evidence, so the dataset leaves it out. */
   openAdaptFit: "low" | "conditional" | "strong";
   openAdaptReason: string;
   capabilities: Capability[];
@@ -822,13 +823,150 @@ export const ehrs: EhrRecord[] = [
   },
 ];
 
-export const workflows = [
-  { slug: "scheduling-writeback", name: "Scheduling write-back", description: "Create, reschedule, cancel, or reconcile appointments." },
-  { slug: "patient-demographics", name: "Patient demographics", description: "Create or update identity, contact, and coverage-adjacent fields." },
-  { slug: "documents-and-notes", name: "Documents and notes", description: "Attach documents, route notes, and verify chart placement." },
-  { slug: "claims-and-charge-capture", name: "Claims and charge capture", description: "Enter or reconcile charges, codes, and claim state." },
-  { slug: "referral-intake", name: "Referral intake", description: "Convert inbound referrals into structured records and work items." },
-  { slug: "work-queue-status", name: "Work-queue status", description: "Update queues, tasks, dispositions, and follow-up state." },
+/** A FHIR R4 resource a workflow usually touches, and what it holds for that workflow. */
+export type WorkflowResource = {
+  name: string;
+  role: string;
+};
+
+export type Workflow = {
+  slug: string;
+  name: string;
+  description: string;
+  /** What the record should look like once the step is done. */
+  stateChange: string;
+  resources: WorkflowResource[];
+  /** How to read the saved record back and compare it to the source. */
+  verify: string;
+  failureModes: string[];
+};
+
+/** The HL7 FHIR R4 specification page for a resource, such as Appointment. */
+export function fhirResourceUrl(name: string): string {
+  return `https://hl7.org/fhir/R4/${name.toLowerCase()}.html`;
+}
+
+export const workflows: Workflow[] = [
+  {
+    slug: "scheduling-writeback",
+    name: "Scheduling write-back",
+    description: "Create, reschedule, cancel, or reconcile appointments.",
+    stateChange:
+      "An appointment exists on the right provider's schedule at the right time, for the right patient, visit type, and location. The slot it uses no longer shows as free.",
+    resources: [
+      { name: "Appointment", role: "The booking: status, start and end time, visit type, and the patient, provider, and location taking part." },
+      { name: "Slot", role: "A bookable block of time. It should show as busy once the appointment is booked." },
+      { name: "Schedule", role: "The provider's or room's calendar that the slot belongs to." },
+    ],
+    verify:
+      "Read the appointment back by its ID. Check that its status is booked, the start time and time zone match the request, and the participants are the right patient, provider, and location. Then search that provider's slots for the same time and confirm the slot isn't free.",
+    failureModes: [
+      "Someone else books the slot between your search and your booking.",
+      "A time zone or daylight saving offset moves the appointment by an hour.",
+      "Site rules reject the visit type, provider, or location, or require a referral or authorization first.",
+      "A request times out after it was sent. Search for the appointment before you try again, or you might book it twice.",
+    ],
+  },
+  {
+    slug: "patient-demographics",
+    name: "Patient demographics",
+    description: "Create or update identity, contact, and coverage-adjacent fields.",
+    stateChange:
+      "The existing patient record shows the new name, contact, address, or insurance details, and no second record was created for the same person.",
+    resources: [
+      { name: "Patient", role: "Identity, contact details, address, and links to records merged into or out of this one." },
+      { name: "Coverage", role: "The insurance plan, member ID, subscriber, and payer." },
+      { name: "RelatedPerson", role: "Guarantors, emergency contacts, and other people tied to the patient." },
+    ],
+    verify:
+      "Find the patient by a stable identifier such as the MRN, not by name. Read the record back and compare each changed field to the source. Then confirm that the fields you didn't change still hold their old values.",
+    failureModes: [
+      "A name or birth date mismatch creates a second patient instead of updating the first.",
+      "A FHIR update replaces the whole resource, so any field left out of the request is erased. Read the current version first, and send it back with If-Match so you don't overwrite a newer change.",
+      "Insurance updates need payer and plan codes that the site has already set up.",
+      "The patient was merged into another record. Check Patient.link and write to the record that replaced it.",
+    ],
+  },
+  {
+    slug: "documents-and-notes",
+    name: "Documents and notes",
+    description: "Attach documents, route notes, and verify chart placement.",
+    stateChange:
+      "The document or note is filed in the right patient's chart, under the right document type and visit, and its content opens.",
+    resources: [
+      { name: "DocumentReference", role: "The index entry: patient, document type, date, visit, status, and a pointer to the content." },
+      { name: "Binary", role: "The file itself, such as a PDF or a scanned image." },
+      { name: "Composition", role: "A structured clinical note made up of sections." },
+    ],
+    verify:
+      "Read the DocumentReference back. Check the patient, document type, date, and visit. Then open the attached content and confirm it's the file you sent, not an empty or partial upload.",
+    failureModes: [
+      "The document lands in an inbox or holding queue and waits for a person to file it, so it isn't in the chart yet.",
+      "The document type isn't on the site's list, so it's rejected or filed under a generic category.",
+      "The file is larger than the system accepts, or in a format it doesn't take.",
+      "The note is saved as preliminary and still needs a signature before it counts as final.",
+    ],
+  },
+  {
+    slug: "claims-and-charge-capture",
+    name: "Claims and charge capture",
+    description: "Enter or reconcile charges, codes, and claim state.",
+    stateChange:
+      "Each charge is posted once, to the right visit, with the right codes, modifiers, units, date of service, and rendering provider. The claim then moves to the state you expect.",
+    resources: [
+      { name: "ChargeItem", role: "One billable line: code, quantity, date, performer, and the visit it belongs to." },
+      { name: "Claim", role: "The bill sent to a payer." },
+      { name: "Encounter", role: "The visit that the charges attach to." },
+      { name: "Account", role: "The billing account that collects the charges." },
+    ],
+    verify:
+      "Read the charges on the visit back and compare codes, modifiers, units, date of service, and provider to the source. Count the lines, so you know a retry didn't post one twice. Then check the claim's status.",
+    failureModes: [
+      "A retry after a timeout can post the same charge twice. Read the visit's charges before you try again.",
+      "Charges attach to the wrong visit when the patient has two visits on the same day.",
+      "Billing edits reject a code and modifier combination, and the charge waits in a work queue.",
+      "Charges post in a nightly batch, so a read right after entry doesn't show them yet.",
+    ],
+  },
+  {
+    slug: "referral-intake",
+    name: "Referral intake",
+    description: "Convert inbound referrals into structured records and work items.",
+    stateChange:
+      "The inbound referral becomes a structured referral on the right patient, with the referral letter attached and a work item for the team that books it.",
+    resources: [
+      { name: "ServiceRequest", role: "The referral itself: requested service, reason, referring provider, and priority." },
+      { name: "Task", role: "Tracks the referral's progress, such as received, accepted, or declined." },
+      { name: "DocumentReference", role: "The referral letter or fax." },
+      { name: "Patient", role: "Matched to an existing record, or created, before the referral is filed." },
+    ],
+    verify:
+      "Read the referral back on the patient's record. Check the requested service, reason, referring provider, and priority against the fax or letter. Then confirm the attached letter opens and the work item is in the right queue.",
+    failureModes: [
+      "The patient isn't matched, which leaves an unfiled referral or creates a duplicate patient.",
+      "The referring provider isn't in the provider directory, so the referral can't link to them.",
+      "A field read from a fax is wrong, such as a transposed birth date. Compare each field to the source before you save.",
+      "The same referral arrives twice, by fax and through an eReferral network, and is entered twice.",
+    ],
+  },
+  {
+    slug: "work-queue-status",
+    name: "Work-queue status",
+    description: "Update queues, tasks, dispositions, and follow-up state.",
+    stateChange:
+      "The work item moves to its next state, with the right owner, reason, and follow-up date, and it leaves the queue it came from.",
+    resources: [
+      { name: "Task", role: "A work item: status, business status, owner, and the record it's about." },
+      { name: "Communication", role: "A message sent or received as part of the work." },
+    ],
+    verify:
+      "Read the work item back. Check its status, owner, reason, and due date, and confirm it no longer appears in the old queue. Check when it was last changed, so you know your update is the one that saved.",
+    failureModes: [
+      "Two people work the same item, and the later update overwrites the earlier one.",
+      "Many EHR work queues have no FHIR Task equivalent, so you can reach them only through the vendor's own API or the screen.",
+      "Status and reason codes differ by site, so a value one site accepts is rejected at another.",
+    ],
+  },
 ];
 
 /** Canadian profiles carry a market that starts with "Canadian". */
@@ -837,6 +975,19 @@ export function isCanadian(ehr: EhrRecord): boolean {
 }
 
 export const canadianEhrs = ehrs.filter(isCanadian);
+
+/** A record as the public dataset publishes it: the evidence, without OpenAdapt's own product view. */
+export type PublicEhrRecord = Omit<EhrRecord, "openAdaptFit" | "openAdaptReason">;
+
+export function publicRecord(ehr: EhrRecord): PublicEhrRecord {
+  const record: Partial<EhrRecord> = { ...ehr };
+  delete record.openAdaptFit;
+  delete record.openAdaptReason;
+  return record as PublicEhrRecord;
+}
+
+/** The records that /api/directory publishes. */
+export const publicRecords: PublicEhrRecord[] = ehrs.map(publicRecord);
 
 /** The most recent review date in the dataset, as YYYY-MM-DD. */
 export const latestReview: string = ehrs.reduce(
@@ -868,10 +1019,73 @@ export function searchText(ehr: EhrRecord): string {
   ].join(" ");
 }
 
+/**
+ * The interface filter option a surface label belongs to. Records spell one
+ * interface several ways ("FHIR R4", "FHIR DSTU2", "FHIR"; "REST", "REST API"),
+ * so the filter groups them. SMART on FHIR stays its own option. Cards and
+ * profiles keep the specific label.
+ */
+export function surfaceFamily(surface: string): string {
+  if (/FHIR/i.test(surface) && !/^SMART on FHIR$/i.test(surface)) return "FHIR";
+  if (/^REST\b/i.test(surface)) return "REST API";
+  return surface;
+}
+
+/** Interface filter options, one per family that at least one record lists. */
+export const surfaceOptions: string[] = Array.from(
+  new Set(ehrs.flatMap((ehr) => ehr.surfaces.map(surfaceFamily))),
+).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase(), "en"));
+
+export function matchesSurface(ehr: EhrRecord, family: string): boolean {
+  return ehr.surfaces.some((surface) => surfaceFamily(surface) === family);
+}
+
+/** Status filter options: only the statuses some record has, so no option always shows zero. */
+export const statusOptions: EvidenceStatus[] = (Object.keys(statusLabels) as EvidenceStatus[]).filter((status) =>
+  ehrs.some((ehr) => ehr.status === status),
+);
+
 export function getEhr(slug: string) {
   return ehrs.find((ehr) => ehr.slug === slug);
 }
 
 export function getWorkflow(slug: string) {
   return workflows.find((workflow) => workflow.slug === slug);
+}
+
+/**
+ * The text served at /llms.txt (https://llmstxt.org): a short summary for
+ * assistants, then links to the dataset, every profile, and every workflow
+ * guide. It carries the evidence caveats and leaves OpenAdapt's view out.
+ */
+export function llmsText(origin: string): string {
+  const states = Object.values(statusLabels);
+  return [
+    "# EHR Integration Directory",
+    "",
+    `> Public evidence on how to reach ${ehrs.length} EHRs and related systems through supported interfaces: APIs, FHIR and HL7 paths, access requirements, sandboxes, and documented write operations. Each profile lists its sources and the date it was last reviewed. Published by OpenAdapt.`,
+    "",
+    `Each profile has one of these evidence states: ${states.slice(0, -1).join(", ")}, and ${states[states.length - 1]}. "${statusLabels["not-found"]}" means the reviewed public sources did not establish the path. It does not mean the vendor doesn't support it. The directory is not a complete catalog or a market-share ranking.`,
+    "",
+    "OpenAdapt makes software that enters data through an EHR's screens when no usable API covers a step, so it has a business interest in steps that end at a screen. Profile pages show that product view in a box labeled \"OpenAdapt's view\". It isn't evidence, and the dataset and this file leave it out.",
+    "",
+    "## Data",
+    "",
+    `- [Dataset (JSON)](${origin}/api/directory): every profile with its evidence status, access path, interfaces, capability checks, sources, and review date. CC BY 4.0.`,
+    `- [Methodology](${origin}/methodology): what each evidence state means, and how to send a correction.`,
+    "",
+    "## Profiles",
+    "",
+    ...publicRecords.map((ehr) => `- [${ehr.name}](${origin}/ehr/${ehr.slug}): ${statusLabels[ehr.status]}. ${ehr.verdict} Reviewed ${ehr.lastReviewed}.`),
+    "",
+    "## Workflow guides",
+    "",
+    ...workflows.map((workflow) => `- [${workflow.name}](${origin}/workflows/${workflow.slug}): ${workflow.description}`),
+    "",
+    "## Optional",
+    "",
+    `- [Canada](${origin}/canada): Canadian EMR profiles and the Ocean referral network, compared.`,
+    `- [No write API?](${origin}/no-write-api): options for teams whose write access is gated, still pending, or doesn't cover their step.`,
+    "",
+  ].join("\n");
 }

@@ -24,7 +24,11 @@ GitHub repository homepage uses the same origin.
 - Direct links to official vendor documentation
 - Workflow guides for scheduling, demographics, documents, claims, referrals,
   and work queues
-- A machine-readable JSON endpoint at `/api/directory`
+- A machine-readable JSON endpoint at `/api/directory` (it leaves out the
+  "OpenAdapt's view" box shown on profile pages, which is the publisher's own
+  product view, not evidence)
+- A plain-text summary for AI assistants at `/llms.txt`, built from the same
+  public records
 - Sitemap, canonical metadata, robots directives, and Dataset structured data
 
 The directory uses five evidence states: `documented`, `partner-gated`,
@@ -35,7 +39,8 @@ It does not mean the vendor does not support it.
 
 ## Run locally
 
-Requirements: Node.js 22.13 or newer and npm.
+Requirements: Node.js 22.18 or newer and npm. The tests load `lib/ehrs.ts` with
+Node's built-in TypeScript support, which 22.18 turns on by default.
 
 ```bash
 npm ci
