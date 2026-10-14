@@ -882,6 +882,32 @@ export function searchText(ehr: EhrRecord): string {
   ].join(" ");
 }
 
+/**
+ * The interface filter option a surface label belongs to. Records spell one
+ * interface several ways ("FHIR R4", "FHIR DSTU2", "FHIR"; "REST", "REST API"),
+ * so the filter groups them. SMART on FHIR stays its own option. Cards and
+ * profiles keep the specific label.
+ */
+export function surfaceFamily(surface: string): string {
+  if (/FHIR/i.test(surface) && !/^SMART on FHIR$/i.test(surface)) return "FHIR";
+  if (/^REST\b/i.test(surface)) return "REST API";
+  return surface;
+}
+
+/** Interface filter options, one per family that at least one record lists. */
+export const surfaceOptions: string[] = Array.from(
+  new Set(ehrs.flatMap((ehr) => ehr.surfaces.map(surfaceFamily))),
+).sort();
+
+export function matchesSurface(ehr: EhrRecord, family: string): boolean {
+  return ehr.surfaces.some((surface) => surfaceFamily(surface) === family);
+}
+
+/** Status filter options: only the statuses some record has, so no option always shows zero. */
+export const statusOptions: EvidenceStatus[] = (Object.keys(statusLabels) as EvidenceStatus[]).filter((status) =>
+  ehrs.some((ehr) => ehr.status === status),
+);
+
 export function getEhr(slug: string) {
   return ehrs.find((ehr) => ehr.slug === slug);
 }

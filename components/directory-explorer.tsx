@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Search, SlidersHorizontal, X } from "lucide-react";
-import { EhrRecord, ehrs, latestReview, searchText, statusLabels } from "@/lib/ehrs";
+import { EhrRecord, ehrs, latestReview, matchesSurface, searchText, statusLabels, statusOptions, surfaceOptions } from "@/lib/ehrs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -42,18 +42,13 @@ export function DirectoryExplorer() {
   const [status, setStatus] = useState("all");
   const [surface, setSurface] = useState("all");
 
-  const surfaces = useMemo(
-    () => Array.from(new Set(ehrs.flatMap((ehr) => ehr.surfaces))).sort(),
-    [],
-  );
-
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return ehrs.filter((ehr) => {
       const matchesQuery = !needle || searchText(ehr).toLowerCase().includes(needle);
       const matchesStatus = status === "all" || ehr.status === status;
-      const matchesSurface = surface === "all" || ehr.surfaces.includes(surface);
-      return matchesQuery && matchesStatus && matchesSurface;
+      const surfaceMatches = surface === "all" || matchesSurface(ehr, surface);
+      return matchesQuery && matchesStatus && surfaceMatches;
     });
   }, [query, status, surface]);
 
@@ -81,14 +76,14 @@ export function DirectoryExplorer() {
             <SelectTrigger className="h-10 w-full border-slate-300 bg-white" aria-label="Filter by evidence status"><SelectValue placeholder="Evidence status" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All evidence states</SelectItem>
-              {Object.entries(statusLabels).map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}
+              {statusOptions.map((value) => <SelectItem key={value} value={value}>{statusLabels[value]}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={surface} onValueChange={setSurface}>
             <SelectTrigger className="h-10 w-full border-slate-300 bg-white" aria-label="Filter by interface"><SelectValue placeholder="Interface" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All interfaces</SelectItem>
-              {surfaces.map((item) => <SelectItem key={item} value={item}>{item}</SelectItem>)}
+              {surfaceOptions.map((item) => <SelectItem key={item} value={item}>{item}</SelectItem>)}
             </SelectContent>
           </Select>
           <Button variant="outline" className="h-10 border-slate-300" disabled={!hasFilters} onClick={() => { setQuery(""); setStatus("all"); setSurface("all"); }}>
