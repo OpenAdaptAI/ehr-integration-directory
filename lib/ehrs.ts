@@ -1052,3 +1052,40 @@ export function getEhr(slug: string) {
 export function getWorkflow(slug: string) {
   return workflows.find((workflow) => workflow.slug === slug);
 }
+
+/**
+ * The text served at /llms.txt (https://llmstxt.org): a short summary for
+ * assistants, then links to the dataset, every profile, and every workflow
+ * guide. It carries the evidence caveats and leaves OpenAdapt's view out.
+ */
+export function llmsText(origin: string): string {
+  const states = Object.values(statusLabels);
+  return [
+    "# EHR Integration Directory",
+    "",
+    `> Public evidence on how to reach ${ehrs.length} EHRs and related systems through supported interfaces: APIs, FHIR and HL7 paths, access requirements, sandboxes, and documented write operations. Each profile lists its sources and the date it was last reviewed. Published by OpenAdapt.`,
+    "",
+    `Each profile has one of these evidence states: ${states.slice(0, -1).join(", ")}, and ${states[states.length - 1]}. "${statusLabels["not-found"]}" means the reviewed public sources did not establish the path. It does not mean the vendor doesn't support it. The directory is not a complete catalog or a market-share ranking.`,
+    "",
+    "OpenAdapt makes software that enters data through an EHR's screens when no usable API covers a step, so it has a business interest in steps that end at a screen. Profile pages show that product view in a box labeled \"OpenAdapt's view\". It isn't evidence, and the dataset and this file leave it out.",
+    "",
+    "## Data",
+    "",
+    `- [Dataset (JSON)](${origin}/api/directory): every profile with its evidence status, access path, interfaces, capability checks, sources, and review date. CC BY 4.0.`,
+    `- [Methodology](${origin}/methodology): what each evidence state means, and how to send a correction.`,
+    "",
+    "## Profiles",
+    "",
+    ...publicRecords.map((ehr) => `- [${ehr.name}](${origin}/ehr/${ehr.slug}): ${statusLabels[ehr.status]}. ${ehr.verdict} Reviewed ${ehr.lastReviewed}.`),
+    "",
+    "## Workflow guides",
+    "",
+    ...workflows.map((workflow) => `- [${workflow.name}](${origin}/workflows/${workflow.slug}): ${workflow.description}`),
+    "",
+    "## Optional",
+    "",
+    `- [Canada](${origin}/canada): Canadian EMR profiles and the Ocean referral network, compared.`,
+    `- [No write API?](${origin}/no-write-api): options for teams whose write access is gated, still pending, or doesn't cover their step.`,
+    "",
+  ].join("\n");
+}

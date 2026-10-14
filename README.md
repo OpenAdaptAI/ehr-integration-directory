@@ -27,6 +27,8 @@ GitHub repository homepage uses the same origin.
 - A machine-readable JSON endpoint at `/api/directory` (it leaves out the
   "OpenAdapt's view" box shown on profile pages, which is the publisher's own
   product view, not evidence)
+- A plain-text summary for AI assistants at `/llms.txt`, built from the same
+  public records
 - Sitemap, canonical metadata, robots directives, and Dataset structured data
 
 The directory uses five evidence states: `documented`, `partner-gated`,
