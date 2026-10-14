@@ -65,21 +65,23 @@ test("keeps five evidence states and refuses not-found as cannot", async () => {
   assert.match(methodology, /This is not proof that it is unsupported/);
 });
 
-test("product links go to Execute or partners, not a workflow marketplace", async () => {
+test("product links go to the explainer or partners, not a workflow marketplace", async () => {
   const files = [
     "lib/links.ts",
     "app/page.tsx",
     "app/ehr/[slug]/page.tsx",
     "app/workflows/[slug]/page.tsx",
+    "app/no-write-api/page.tsx",
+    "app/canada/page.tsx",
     "components/site-header.tsx",
   ];
   const sources = await Promise.all(files.map(read));
 
-  assert.match(sources[0], /https:\/\/openadapt\.ai\/execute/);
   assert.match(sources[0], /https:\/\/openadapt\.ai\/partners/);
+  assert.match(sources[0], /NO_WRITE_API_PATH = "\/no-write-api"/);
   assert.match(sources[0], /Do not infer that/);
-  assert.match(sources[0], /system-of-record read/);
-  assert.match(sources[0], /issues a Seal only after that read/);
+  assert.match(sources[0], /counts as done only after the saved record is read back some other way than the screen/);
+  assert.match(sources[0], /a person confirms the record/);
 
   for (const source of sources) {
     assert.doesNotMatch(source, /openadapt\.ai\/qualify/);
@@ -90,4 +92,88 @@ test("product links go to Execute or partners, not a workflow marketplace", asyn
     assert.doesNotMatch(source, /21\/23/);
     assert.doesNotMatch(source, /2,?689/);
   }
+});
+
+const canadianSlugs = ["accuro", "ps-suite", "med-access", "telus-chr", "oscar-pro", "juno", "ocean"];
+
+function recordBlock(data, slug) {
+  const start = data.indexOf(`slug: "${slug}"`);
+  assert.notEqual(start, -1, `missing record ${slug}`);
+  const next = data.indexOf("slug: \"", start + 1);
+  return data.slice(start, next === -1 ? undefined : next);
+}
+
+test("covers the Canadian ambulatory EMRs and Ocean with sourced, dated records", async () => {
+  const data = await read("lib/ehrs.ts");
+
+  for (const slug of canadianSlugs) {
+    const block = recordBlock(data, slug);
+    assert.match(block, /market: "Canadian /, `${slug} must be marked Canadian`);
+    assert.match(block, /lastReviewed: "\d{4}-\d{2}-\d{2}"/, `${slug} needs a review date`);
+    assert.match(block, /capabilities: \[/, `${slug} needs capability rows`);
+    assert.match(block, /sources: \[[\s\S]*(url: "https:\/\/|[A-Z_]+,)/, `${slug} needs sources`);
+  }
+
+  // No public read route was found for PS Suite or Med Access, so neither profile may promise a record check.
+  for (const slug of ["ps-suite", "med-access"]) {
+    const block = recordBlock(data, slug);
+    assert.doesNotMatch(block, /automates and checks/);
+    assert.match(block, /a person would confirm each entry/);
+  }
+
+  assert.match(data, /export function isCanadian/);
+  assert.match(data, /isCanadian\(ehr\) \? "Canada"/);
+});
+
+test("review dates come from the data, not hardcoded strings", async () => {
+  const [profile, explorer, home, data, route, sitemap] = await Promise.all([
+    read("app/ehr/[slug]/page.tsx"),
+    read("components/directory-explorer.tsx"),
+    read("app/page.tsx"),
+    read("app/data/page.tsx"),
+    read("app/api/directory/route.ts"),
+    read("app/sitemap.ts"),
+  ]);
+
+  assert.match(profile, /formatReviewDate\(ehr\.lastReviewed\)/);
+  for (const source of [profile, explorer, home, data, route, sitemap]) {
+    assert.doesNotMatch(source, /2026-08-28|August 28, 2026/);
+  }
+  assert.match(sitemap, /\/canada/);
+  assert.match(sitemap, /\/no-write-api/);
+});
+
+test("the explainer labels its illustration, cites its numbers, and discloses OpenAdapt", async () => {
+  const [explainer, canada, links] = await Promise.all([
+    read("app/no-write-api/page.tsx"),
+    read("app/canada/page.tsx"),
+    read("lib/links.ts"),
+  ]);
+
+  assert.match(explainer, /Illustration\./);
+  assert.match(explainer, /Disclosure/);
+  assert.match(explainer, /no partnership with any vendor listed here/);
+  assert.match(explainer, /pmc\.ncbi\.nlm\.nih\.gov\/articles\/PMC7660949/);
+  assert.match(explainer, /hfma\.org\.uk/);
+  assert.match(explainer, /it doesn't retry on its own/);
+  // A screen read alone is not a record check: without a second route, a person confirms.
+  assert.match(explainer, /through a second route, such as a read-only API/);
+  assert.match(explainer, /finished but not checked/);
+  assert.doesNotMatch(explainer, /OpenAdapt automates and checks/);
+
+  const banned = /seamless|robust|leverage|crucial|delve|unlock|empower|cutting-edge|game-changer|transformative|\bSeal\b|VERIFIED|HALTED|RECONCILIATION_REQUIRED|\u2014/i;
+  for (const source of [explainer, canada, links]) {
+    assert.doesNotMatch(source, banned);
+  }
+});
+
+test("the Canada comparison keeps Ocean's network updates apart from filing in the chart", async () => {
+  const [canada, data] = await Promise.all([read("app/canada/page.tsx"), read("lib/ehrs.ts")]);
+  const ocean = recordBlock(data, "ocean");
+
+  assert.match(ocean, /label: "Updates sent back to Ocean"/);
+  assert.match(ocean, /label: "Filing in the receiving chart"/);
+  assert.match(canada, /NETWORK_WRITE_LABEL = "Updates sent back to Ocean"/);
+  assert.match(canada, /FILING_LABEL = "Filing in the receiving chart"/);
+  assert.match(canada, /\{filing && \(/);
 });

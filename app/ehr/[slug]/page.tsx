@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowUpRight, CheckCircle2, CircleHelp, ExternalLink, FileSearch, KeyRound, Route, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, CircleHelp, ExternalLink, FileSearch, KeyRound, Route, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site-header";
 import { StatusBadge } from "@/components/status-badge";
-import { OPENADAPT_EXECUTE_URL, remainingScreenNote } from "@/lib/links";
-import { ehrs, getEhr } from "@/lib/ehrs";
+import { NO_WRITE_API_PATH, remainingScreenNote } from "@/lib/links";
+import { ehrs, formatReviewDate, getEhr } from "@/lib/ehrs";
 
 export function generateStaticParams() {
   return ehrs.map((ehr) => ({ slug: ehr.slug }));
@@ -58,7 +58,7 @@ export default async function EhrProfile({ params }: { params: Promise<{ slug: s
               <p className="mt-3 text-sm font-medium leading-6 text-slate-800">{ehr.verdict}</p>
               <div className="mt-5 border-t border-slate-100 pt-5">
                 <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-slate-400">Last reviewed</p>
-                <p className="mt-1 text-sm text-slate-700">August 28, 2026</p>
+                <p className="mt-1 text-sm text-slate-700">{formatReviewDate(ehr.lastReviewed)}</p>
               </div>
             </aside>
           </header>
@@ -113,11 +113,11 @@ export default async function EhrProfile({ params }: { params: Promise<{ slug: s
 
               <section className="rounded-2xl bg-[#10233f] p-6 text-white">
                 <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-cyan-200">OpenAdapt fit · {fitLabel}</p>
-                <h2 className="mt-3 text-xl font-semibold">When the path ends at the UI</h2>
+                <h2 className="mt-3 text-xl font-semibold">When the path ends at a screen</h2>
                 <p className="mt-3 text-sm leading-6 text-slate-300">{ehr.openAdaptReason}</p>
                 <p className="mt-3 text-sm leading-6 text-slate-300">{remainingScreenNote(ehr.name)}</p>
                 <Button asChild className="mt-5 w-full bg-white text-[#10233f] hover:bg-slate-100">
-                  <a href={OPENADAPT_EXECUTE_URL} target="_blank" rel="noreferrer">OpenAdapt Execute <ArrowUpRight /></a>
+                  <Link href={NO_WRITE_API_PATH}>No write API? See your options <ArrowRight /></Link>
                 </Button>
               </section>
 

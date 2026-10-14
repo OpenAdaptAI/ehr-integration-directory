@@ -16,6 +16,10 @@ GitHub repository homepage uses the same origin.
 ## What is included
 
 - Searchable profiles for major EHR and practice-management products
+- Canadian ambulatory EMR profiles (Accuro, PS Suite, Med Access, CHR,
+  OSCAR Pro, and Juno) and the Ocean eReferral network, compared at `/canada`
+- A plain-language explainer at `/no-write-api` for teams whose write access
+  is gated, still pending, or doesn't cover their step
 - Operation-specific evidence states instead of platform-wide yes/no claims
 - Direct links to official vendor documentation
 - Workflow guides for scheduling, demographics, documents, claims, referrals,
@@ -59,7 +63,7 @@ The canonical production origin is
 - `app/` - pages, metadata, sitemap, robots, and JSON API
 - `components/` - directory interface and UI primitives
 - `lib/ehrs.ts` - source-linked directory records and workflow definitions
-- `lib/links.ts` - canonical origin and OpenAdapt Execute / Partners URLs
+- `lib/links.ts` - canonical origin, OpenAdapt URLs, and internal explainer paths
 - `tests/` - rendered output and component checks
 
 ## Contributing evidence

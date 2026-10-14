@@ -43,6 +43,38 @@ export const statusLabels: Record<EvidenceStatus, string> = {
   unknown: "Unknown",
 };
 
+// Sources shared by several Canadian profiles.
+const ONTARIOMD_CERTIFIED: Source = {
+  label: "OntarioMD certified EMRs",
+  url: "https://www.ontariomd.ca/emr-certification/certified-emrs",
+  kind: "registry",
+};
+const BC_DRO_INTEGRATIONS: Source = {
+  label: "B.C. Digital Referrals and Orders: EMR integrations",
+  url: "https://dro.phsa.ca/about-dro/emr-integrations",
+  kind: "registry",
+};
+const OCEAN_NETWORK_INTEGRATIONS: Source = {
+  label: "Ocean network integrations",
+  url: "https://www.oceanmd.com/network-integrations/",
+  kind: "official",
+};
+const OCEAN_ACCURO_WORKFLOWS: Source = {
+  label: "Accuro and Ocean workflows (Ocean, November 2023)",
+  url: "https://www.oceanmd.com/news/accuro-deepens-ocean-integration-with-enhanced-workflows/",
+  kind: "official",
+};
+const TELUS_EMR_ADD_ONS: Source = {
+  label: "TELUS EMR add-ons",
+  url: "https://www.telus.com/en/health/health-professionals/clinics/emr-add-ons",
+  kind: "official",
+};
+const WELLSTAR_DEVELOPER_PROGRAM: Source = {
+  label: "WELLSTAR Developer Program",
+  url: "https://info.wellstar.health/wellstar-developer-program",
+  kind: "official",
+};
+
 export const ehrs: EhrRecord[] = [
   {
     slug: "epic",
@@ -134,7 +166,7 @@ export const ehrs: EhrRecord[] = [
     capabilities: [
       { label: "Public documentation", status: "documented", detail: "FHIR and proprietary API guides are public." },
       { label: "Authorization", status: "documented", detail: "OAuth 2.0 flows and access requirements are documented." },
-      { label: "Operational write-back", status: "documented", detail: "The vendor describes a robust write API library; verify the exact operation." },
+      { label: "Operational write-back", status: "documented", detail: "The vendor describes a broad library of write APIs; verify the exact operation." },
     ],
     sources: [
       { label: "FHIR APIs", url: "https://docs.athenahealth.com/api/docs/fhir-apis", kind: "official" },
@@ -345,32 +377,390 @@ export const ehrs: EhrRecord[] = [
   },
   {
     slug: "accuro",
-    name: "AccuroEMR",
-    vendor: "QHR Technologies",
+    name: "Accuro EMR",
+    vendor: "QHR Technologies (part of Loblaw Companies)",
     market: "Canadian ambulatory care",
     status: "partner-gated",
-    access: "Commercial agreement and application review required",
-    surfaces: ["REST API"],
+    access: "Email QHR, sign a Terms of Use, build in a 6-month sandbox, pass certification, then sign an agreement",
+    surfaces: ["REST API", "OAuth 2.0", "Ocean eReferral"],
     summary:
-      "Accuro documents a REST API program, but access begins with a product and use-case review followed by an agreement. Available APIs depend on the application.",
+      "QHR publishes a REST API for Accuro, and its public API reference lists write operations. Access starts with an email to QHR and a signed Terms of Use. You then get API tokens and a sandbox for 6 months. After testing and certification, QHR draws up an agreement, and you agree on a production date.",
     verdict:
-      "There is a documented API route, but it is agreement-gated and application-specific.",
+      "There's a documented write path for patients, documents, waitlists, referral orders, tasks, and appointments. It's agreement-gated, and each clinic may need its own approval.",
     nextStep:
-      "Contact QHR with the product and use case, complete the agreement, and request the operation list for the approved application.",
+      "Email inquiry@AccuroEMR.com with your contact details, company URL, and a short product overview. Name the exact operation, and ask which endpoints your approved application can call before you build against the sandbox.",
     openAdaptFit: "conditional",
     openAdaptReason:
-      "Consider a qualified UI workflow when the agreement path or approved API set cannot serve the needed operation.",
+      "Use the API once QHR approves it for your operation. Screen work fits the gaps, such as a clinic that's still waiting for access or a field the approved endpoints don't cover.",
     capabilities: [
-      { label: "REST API program", status: "documented", detail: "Official technical material describes REST API use." },
-      { label: "Developer access", status: "partner-gated", detail: "Access requires vendor contact, use-case review, and an agreement." },
-      { label: "Operation availability", status: "site-specific", detail: "The available API set depends on the approved application." },
+      {
+        label: "REST API reference",
+        status: "documented",
+        detail:
+          "QHR's public API reference (version 12.7.0 when we checked) lists endpoints with the OAuth 2.0 scopes they need. QHR's example also shows the Accuro user permission an endpoint needs. The reference advises integrators to validate their own input and output data.",
+      },
+      {
+        label: "Documented write operations",
+        status: "documented",
+        detail:
+          "The reference lists endpoints that create patients and save documents, waitlist entries, referral orders, tasks, and appointments. Each one needs its own write scope.",
+      },
+      {
+        label: "Developer test path",
+        status: "documented",
+        detail: "After you return the signed Terms of Use, QHR provides API tokens and a sandbox that stays active for 6 months.",
+      },
+      {
+        label: "Production access",
+        status: "partner-gated",
+        detail:
+          "You send QHR the pass certificate after testing. QHR then draws up an agreement. Once everyone signs it, you and QHR agree on a date to move to the production API.",
+      },
+      {
+        label: "Clinic enablement",
+        status: "site-specific",
+        detail:
+          "One integrator's guide says each physician applies, the clinic signs QHR's indemnity agreement, and setup typically takes up to 3 weeks.",
+      },
+      {
+        label: "Hosted delivery",
+        status: "documented",
+        detail: "QHR's requirements page says each workstation needs the Citrix Workspace app to run Accuro Cloud.",
+      },
+      {
+        label: "Referral network",
+        status: "documented",
+        detail:
+          "Ocean says that after a referral from a new patient is imported into Accuro, Ocean can create the patient's chart. B.C.'s Digital Referrals and Orders program lists Accuro as integrated.",
+      },
     ],
     sources: [
       { label: "Accuro API", url: "https://accuroemr.com/accuroapi/", kind: "official" },
-      { label: "Using the REST API", url: "https://accuroemr.com/accuroapi/technical/using-accuros-rest-api/", kind: "official" },
-      { label: "API list", url: "https://accuroemr.com/accuroapi/technical/apis/", kind: "official" },
+      { label: "Using Accuro's REST API", url: "https://accuroemr.com/accuroapi/technical/using-accuros-rest-api/", kind: "official" },
+      { label: "API list and scopes", url: "https://accuroemr.com/accuroapi/technical/apis/", kind: "official" },
+      { label: "Accuro API reference", url: "https://apidocs.dev.qhrtech.com/docs/", kind: "official" },
+      { label: "Accuro Cloud system requirements", url: "https://accuroemr.com/cloud-system-requirements/", kind: "official" },
+      OCEAN_ACCURO_WORKFLOWS,
+      BC_DRO_INTEGRATIONS,
+      ONTARIOMD_CERTIFIED,
+      {
+        label: "Integrator setup guide (Empathia AI)",
+        url: "https://support.empathia.ai/support/solutions/articles/153000246463-how-to-set-up-your-qhr-accuro-empathia-ai-integration",
+        kind: "secondary",
+      },
     ],
-    lastReviewed: "2026-08-28",
+    lastReviewed: "2026-10-08",
+  },
+  {
+    slug: "ps-suite",
+    name: "PS Suite EMR",
+    vendor: "TELUS Health",
+    market: "Canadian ambulatory care",
+    status: "partner-gated",
+    access: "No public API reference found; partner add-ons go through TELUS, then a clinic administrator turns each one on",
+    surfaces: ["TELUS partner add-ons", "Ocean eReferral"],
+    summary:
+      "TELUS lists add-ons from outside partners for PS Suite, but we found no public API reference. One partner's setup guide says the partner sends the clinic's paperwork to TELUS, TELUS connects the EMR, and a clinic administrator then enables the add-on inside PS Suite.",
+    verdict:
+      "Treat PS Suite as partner-gated. Ask TELUS what a partner add-on can write before you plan around one.",
+    nextStep:
+      "Contact TELUS Health with the exact operation. Ask whether a partner add-on can write it, and how a clinic approves and enables the add-on.",
+    openAdaptFit: "conditional",
+    openAdaptReason:
+      "Ask TELUS first. If no add-on covers the step, staff type it in by hand today. That typing is the kind of screen work OpenAdapt automates. We found no public way to read the saved record back, so a person would confirm each entry in the chart.",
+    capabilities: [
+      { label: "Public API reference", status: "not-found", detail: "Not found in the reviewed public sources; this is not a claim of non-support." },
+      { label: "Partner add-ons", status: "documented", detail: "TELUS's add-on page covers CHR, Med Access, and PS Suite, and lists add-ons from outside partners." },
+      {
+        label: "Clinic enablement",
+        status: "site-specific",
+        detail:
+          "A partner's guide (August 2026) says TELUS connects the EMR, which can take up to 10 business days. A PS Suite administrator then enables the add-on in Integration Management.",
+      },
+      {
+        label: "Deployment",
+        status: "documented",
+        detail: "TELUS lists a hosted (ASP) offering in Ontario and Alberta and a local offering in Ontario. OntarioMD certifies PS Suite for local and hosted use.",
+      },
+      { label: "Referral network", status: "documented", detail: "Ocean lists PS Suite among its integrations." },
+      {
+        label: "Writing data back",
+        status: "unknown",
+        detail: "The reviewed sources don't say which records a partner add-on can write. It depends on the partner agreement.",
+      },
+    ],
+    sources: [
+      { label: "PS Suite EMR", url: "https://www.telus.com/en/health/health-professionals/clinics/ps-suite", kind: "official" },
+      TELUS_EMR_ADD_ONS,
+      OCEAN_NETWORK_INTEGRATIONS,
+      ONTARIOMD_CERTIFIED,
+      { label: "Partner setup guide (Tali AI)", url: "https://help.tali.ai/en/articles/set-up-the-ps-suite-integration", kind: "secondary" },
+    ],
+    lastReviewed: "2026-10-08",
+  },
+  {
+    slug: "med-access",
+    name: "Med Access EMR",
+    vendor: "TELUS Health",
+    market: "Canadian ambulatory care",
+    status: "partner-gated",
+    access: "No public API reference found; outside tools connect through TELUS's add-on program",
+    surfaces: ["TELUS partner add-ons", "Ocean eReferral"],
+    summary:
+      "Med Access is TELUS Health's web-based EMR. We found no public API reference for it. Outside tools connect through TELUS's add-on program, and B.C.'s eReferral program lists Med Access as integrated.",
+    verdict:
+      "Treat Med Access as partner-gated. Confirm with TELUS what an add-on can write.",
+    nextStep:
+      "Contact TELUS Health with the exact operation, and ask which add-on or partner route covers it.",
+    openAdaptFit: "conditional",
+    openAdaptReason:
+      "Ask TELUS first. If no add-on covers the step, staff type it in by hand today. That typing is the kind of screen work OpenAdapt automates. We found no public way to read the saved record back, so a person would confirm each entry in the chart.",
+    capabilities: [
+      { label: "Public API reference", status: "not-found", detail: "Not found in the reviewed public sources; this is not a claim of non-support." },
+      { label: "Partner add-ons", status: "documented", detail: "TELUS's add-on page covers Med Access and lists add-ons from outside partners." },
+      { label: "Web-based client", status: "documented", detail: "TELUS describes Med Access as web-based, with access from anywhere that has an internet connection." },
+      {
+        label: "Referral network",
+        status: "documented",
+        detail: "B.C.'s Digital Referrals and Orders program lists Med Access as integrated, and Ocean lists it among its integrations.",
+      },
+      { label: "Writing data back", status: "unknown", detail: "The reviewed sources don't say which records an add-on can write." },
+    ],
+    sources: [
+      { label: "Med Access EMR", url: "https://www.telus.com/en/health/health-professionals/clinics/med-access", kind: "official" },
+      TELUS_EMR_ADD_ONS,
+      BC_DRO_INTEGRATIONS,
+      OCEAN_NETWORK_INTEGRATIONS,
+      ONTARIOMD_CERTIFIED,
+    ],
+    lastReviewed: "2026-10-08",
+  },
+  {
+    slug: "telus-chr",
+    name: "Collaborative Health Record (CHR)",
+    vendor: "TELUS Health",
+    market: "Canadian ambulatory care",
+    status: "partner-gated",
+    access: "Paid CHR Enterprise API, limited to a select few customers; needs a signed contract and TELUS enablement for each CHR domain",
+    surfaces: ["GraphQL", "JWT (RS512)", "Ocean eReferral"],
+    summary:
+      "TELUS documents a CHR Enterprise API that reads and writes CHR data through GraphQL. Its public schema includes mutations that create patients, appointments, incoming referral records, and tasks. It's a paid feature, and TELUS turns it on for each CHR domain after a contract and a privacy and security review.",
+    verdict:
+      "There's a documented write path, including referral records. Access depends on the clinic's contract with TELUS.",
+    nextStep:
+      "Check the exact mutation in the public schema, then confirm the clinic has, or will buy, CHR Enterprise API access for its domain.",
+    openAdaptFit: "low",
+    openAdaptReason:
+      "Use the Enterprise API when the clinic has it. Screen work only makes sense for a clinic without API access, or for a step the schema doesn't cover.",
+    capabilities: [
+      {
+        label: "Public documentation",
+        status: "documented",
+        detail: "TELUS publishes Enterprise API guides and a public schema viewer you can explore before you have access.",
+      },
+      {
+        label: "Documented write operations",
+        status: "documented",
+        detail:
+          "The schema lists mutations such as createPatient, createAppointment, createIncomingReferralRecord, and createTask. CHR applies the account's own rules to API writes, such as an appointment type's booking times and a provider's working hours.",
+      },
+      {
+        label: "Access",
+        status: "partner-gated",
+        detail:
+          "TELUS calls the API a paid feature that's currently limited to a select few customers. Access needs a signed contract, an intake questionnaire, and a privacy and security review before production.",
+      },
+      {
+        label: "Developer test path",
+        status: "documented",
+        detail: "After the contract is signed, TELUS's onboarding steps give you credentials for a sandbox CHR domain. You build and test there before you ask for production access.",
+      },
+      {
+        label: "Audit trail",
+        status: "documented",
+        detail: "CHR records every API action in its audit log under the API consumer that made it, and keeps API requests and responses for 90 days.",
+      },
+      { label: "Referral network", status: "documented", detail: "Ocean lists TELUS Health CHR among its integrations." },
+    ],
+    sources: [
+      { label: "CHR Enterprise API", url: "https://help.inputhealth.com/en/articles/6483215-chr-enterprise-api", kind: "official" },
+      { label: "Enterprise API onboarding", url: "https://help.inputhealth.com/en/articles/6368814-enterprise-api-onboarding-overview", kind: "official" },
+      { label: "API reference documentation", url: "https://help.inputhealth.com/en/articles/5941595-api-reference-documentation", kind: "official" },
+      { label: "Enterprise API schema viewer", url: "https://apidocs.ca.inputhealth.com/enterprise-api", kind: "official" },
+      { label: "Collaborative Health Record", url: "https://www.telus.com/en/health/health-professionals/clinics/collaborative-health-record", kind: "official" },
+      OCEAN_NETWORK_INTEGRATIONS,
+      ONTARIOMD_CERTIFIED,
+    ],
+    lastReviewed: "2026-10-08",
+  },
+  {
+    slug: "oscar-pro",
+    name: "OSCAR Pro",
+    vendor: "WELLSTAR (WELL Health)",
+    market: "Canadian ambulatory care",
+    status: "partner-gated",
+    access: "WELLSTAR Developer Program: apply with a pilot clinic's letter of support, sign a sandbox agreement, then pass a conformance review",
+    surfaces: ["WELLSTAR Developer Program", "REST (/ws/)", "OAuth 1.0", "Ocean eReferral"],
+    summary:
+      "OSCAR Pro is WELLSTAR's edition of the open-source OSCAR EMR. WELLSTAR runs a developer program that it describes as a single integration path for OSCAR Pro and Juno. Open-source OSCAR also documents a REST layer secured with OAuth 1.0.",
+    verdict:
+      "There's a documented route, but it runs through WELLSTAR's program and each clinic's setup.",
+    nextStep:
+      "Apply to the WELLSTAR Developer Program with your product, the target EMRs, and a signed letter from a clinic that's willing to pilot. Confirm the OSCAR Pro version and host at that clinic.",
+    openAdaptFit: "conditional",
+    openAdaptReason:
+      "Use the WELLSTAR route when it covers your step. Screen work fits steps the approved integration doesn't reach.",
+    capabilities: [
+      {
+        label: "Developer program",
+        status: "partner-gated",
+        detail:
+          "You apply with product details, target EMRs, and a signed letter of support from a WELLSTAR clinic that's willing to pilot. API documentation and a test environment come after a sandbox agreement. Launch needs a validation and conformance review.",
+      },
+      {
+        label: "Open-source REST layer",
+        status: "documented",
+        detail: "The OSCAR developer wiki documents OAuth 1.0 endpoints under /ws/oauth. The page dates from 2017.",
+      },
+      {
+        label: "Client registration",
+        status: "site-specific",
+        detail:
+          "One integrator's guide says API access isn't on by default and an administrator registers each API client inside OSCAR. Details vary by OSCAR variant and host.",
+      },
+      {
+        label: "Referral network",
+        status: "documented",
+        detail: "B.C.'s Digital Referrals and Orders program lists OSCAR Pro as integrated, and Ocean lists it among its integrations.",
+      },
+      { label: "Writing data back", status: "site-specific", detail: "Depends on the version, the host, and the integration the clinic approves." },
+    ],
+    sources: [
+      { label: "OSCAR Pro partners", url: "https://oscarpro.ca/partners/", kind: "official" },
+      WELLSTAR_DEVELOPER_PROGRAM,
+      { label: "OSCAR Pro (WELL Health)", url: "https://well.company/oscar-pro/", kind: "official" },
+      {
+        label: "OSCAR REST API documentation (wiki, 2017)",
+        url: "https://oscaremr.atlassian.net/wiki/spaces/OS/pages/85396074/Documenting+the+REST+API",
+        kind: "official",
+      },
+      BC_DRO_INTEGRATIONS,
+      OCEAN_NETWORK_INTEGRATIONS,
+      ONTARIOMD_CERTIFIED,
+      { label: "OSCAR API guide (Cortico)", url: "https://cortico.health/article/oscar-emr-api-integration/", kind: "secondary" },
+    ],
+    lastReviewed: "2026-10-08",
+  },
+  {
+    slug: "juno",
+    name: "Juno EMR",
+    vendor: "WELLSTAR (WELL Health)",
+    market: "Canadian ambulatory care",
+    status: "partner-gated",
+    access: "WELLSTAR Developer Program; no public API reference found",
+    surfaces: ["WELLSTAR Developer Program", "Ocean eReferral"],
+    summary:
+      "Juno is a cloud EMR from WELLSTAR, hosted in Canada. WELLSTAR names Juno in its developer program alongside OSCAR Pro. We found no public API reference for Juno itself.",
+    verdict:
+      "Treat Juno as partner-gated. Ask WELLSTAR whether its program covers your exact operation on Juno.",
+    nextStep:
+      "Apply to the WELLSTAR Developer Program, name Juno as a target EMR, and ask which operations the Juno integration can write.",
+    openAdaptFit: "conditional",
+    openAdaptReason:
+      "Ask WELLSTAR first. Screen work fits only the steps the program doesn't cover.",
+    capabilities: [
+      { label: "Public API reference", status: "not-found", detail: "Not found in the reviewed public sources; this is not a claim of non-support." },
+      {
+        label: "Developer program",
+        status: "partner-gated",
+        detail: "WELLSTAR's developer program covers Juno and OSCAR Pro. It asks for a pilot clinic's letter of support and a sandbox agreement.",
+      },
+      { label: "Cloud delivery", status: "documented", detail: "Juno says it's cloud-based, needs no installation, and is hosted in Canada." },
+      {
+        label: "Referral network",
+        status: "documented",
+        detail: "Ocean lists Juno among its integrations. B.C.'s Digital Referrals and Orders program lists a Juno integration as underway.",
+      },
+      {
+        label: "Writing data back",
+        status: "partner-gated",
+        detail:
+          "WELLSTAR shares API documentation only after a sandbox agreement. One booking vendor says its API connection writes bookings, intake responses, and messages back to the Juno chart.",
+      },
+    ],
+    sources: [
+      { label: "Juno EMR", url: "https://www.junoemr.com/", kind: "official" },
+      WELLSTAR_DEVELOPER_PROGRAM,
+      { label: "OSCAR Pro partners (WELLSTAR integration path)", url: "https://oscarpro.ca/partners/", kind: "official" },
+      BC_DRO_INTEGRATIONS,
+      OCEAN_NETWORK_INTEGRATIONS,
+      ONTARIOMD_CERTIFIED,
+      { label: "Juno integration (Cortico)", url: "https://cortico.health/emr/juno/", kind: "secondary" },
+    ],
+    lastReviewed: "2026-10-08",
+  },
+  {
+    slug: "ocean",
+    name: "Ocean eReferral network",
+    vendor: "OceanMD (WELL Health)",
+    market: "Canadian eReferral network",
+    status: "documented",
+    access: "Email Ocean Support with your test email domain, company name, and a clinical or jurisdictional project sponsor, then build against Ocean's test site",
+    surfaces: ["HL7 FHIR eReferral", "FHIR R4", "OAuth 2.0"],
+    summary:
+      "Ocean is a referral network that connects to EMRs. Its FHIR eReferral API lets an EMR or client management system receive referrals and send back status, demographic updates, and messages. WELL Health, which bought Ocean's maker in December 2021, says Ocean serves over 4,900 clinics and hospitals and handles more than 1.67 million referrals a year (March 2026).",
+    verdict:
+      "There's a documented route for moving referrals and their status between systems. Getting a referral into the receiving clinic's chart still depends on that clinic's EMR.",
+    nextStep:
+      "Email Ocean Support with your test domain, company name, and project sponsor, and build on the v0.11.1 API.",
+    openAdaptFit: "low",
+    openAdaptReason:
+      "Use the FHIR API to move referrals. Screen work may still apply after a referral arrives, if staff file it by hand in an EMR without a write route.",
+    capabilities: [
+      {
+        label: "FHIR eReferral API",
+        status: "documented",
+        detail: "Ocean supports eReC v1.2.0 (Beta), v0.11.1, and v0.10.0, and recommends v0.11.1 for new integrators.",
+      },
+      {
+        label: "Developer setup",
+        status: "documented",
+        detail: "Ocean publishes the setup steps. They start with an email to Ocean Support that names a clinical or jurisdictional project sponsor.",
+      },
+      {
+        label: "Updates sent back to Ocean",
+        status: "documented",
+        detail: "An integrated system can send status updates such as accepted, booked, or cancelled, plus demographic updates and referral messages.",
+      },
+      {
+        label: "Filing in the receiving chart",
+        status: "site-specific",
+        detail: "Depends on the receiving EMR. In Accuro, the referral is imported first, and Ocean can then create a new patient's chart.",
+      },
+      {
+        label: "Ontario standard",
+        status: "documented",
+        detail: "eHealth Ontario publishes an eReferral and eConsult FHIR implementation guide for trial use.",
+      },
+    ],
+    sources: [
+      { label: "HL7 FHIR eReferral setup guide", url: "https://support.cognisantmd.com/hc/en-us/articles/360058125332", kind: "official" },
+      OCEAN_NETWORK_INTEGRATIONS,
+      {
+        label: "Ontario eReferral-eConsult FHIR guide",
+        url: "https://ehealthontario.on.ca/en/standards/ontario-ereferral-implementation-guide-fhir-overview",
+        kind: "official",
+      },
+      {
+        label: "WELL Health release, March 20, 2026",
+        url: "https://news-releases.well.company/news-releases/well-health-supports-ontarios-commitment-to-a-provincewide-primary-care-medical-record-system/",
+        kind: "official",
+      },
+      { label: "OceanMD (WELL Health)", url: "https://well.company/ocean-by-cognisant-md/", kind: "official" },
+      OCEAN_ACCURO_WORKFLOWS,
+      BC_DRO_INTEGRATIONS,
+    ],
+    lastReviewed: "2026-10-08",
   },
   {
     slug: "dentrix",
@@ -440,6 +830,43 @@ export const workflows = [
   { slug: "referral-intake", name: "Referral intake", description: "Convert inbound referrals into structured records and work items." },
   { slug: "work-queue-status", name: "Work-queue status", description: "Update queues, tasks, dispositions, and follow-up state." },
 ];
+
+/** Canadian profiles carry a market that starts with "Canadian". */
+export function isCanadian(ehr: EhrRecord): boolean {
+  return ehr.market.startsWith("Canadian");
+}
+
+export const canadianEhrs = ehrs.filter(isCanadian);
+
+/** The most recent review date in the dataset, as YYYY-MM-DD. */
+export const latestReview: string = ehrs.reduce(
+  (latest, ehr) => (ehr.lastReviewed > latest ? ehr.lastReviewed : latest),
+  ehrs[0].lastReviewed,
+);
+
+/** Formats a YYYY-MM-DD review date as, for example, "October 8, 2026". */
+export function formatReviewDate(isoDate: string): string {
+  return new Date(`${isoDate}T00:00:00Z`).toLocaleDateString("en-US", {
+    timeZone: "UTC",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+/** Searchable text for a record. Adds "Canada" to Canadian profiles, whose market says "Canadian". */
+export function searchText(ehr: EhrRecord): string {
+  return [
+    ehr.name,
+    ehr.vendor,
+    ehr.market,
+    isCanadian(ehr) ? "Canada" : "",
+    ehr.summary,
+    ehr.access,
+    ...ehr.surfaces,
+    ...ehr.capabilities.flatMap((capability) => [capability.label, capability.detail]),
+  ].join(" ");
+}
 
 export function getEhr(slug: string) {
   return ehrs.find((ehr) => ehr.slug === slug);

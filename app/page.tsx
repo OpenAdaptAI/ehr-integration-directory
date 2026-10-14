@@ -2,8 +2,8 @@ import Link from "next/link";
 import { ArrowRight, BookOpen, Database, FileCheck2, ShieldCheck } from "lucide-react";
 import { DirectoryExplorer } from "@/components/directory-explorer";
 import { SiteHeader } from "@/components/site-header";
-import { workflows } from "@/lib/ehrs";
-import { CANONICAL_ORIGIN, OPENADAPT_EXECUTE_URL } from "@/lib/links";
+import { canadianEhrs, formatReviewDate, latestReview, workflows } from "@/lib/ehrs";
+import { CANADA_PATH, CANONICAL_ORIGIN, NO_WRITE_API_PATH } from "@/lib/links";
 
 export default function Home() {
   const jsonLd = {
@@ -13,7 +13,7 @@ export default function Home() {
     description: "A source-linked directory of public EHR integration and write-back evidence.",
     creator: { "@type": "Organization", name: "OpenAdapt", url: "https://openadapt.ai" },
     url: CANONICAL_ORIGIN,
-    dateModified: "2026-08-28",
+    dateModified: latestReview,
     license: "https://creativecommons.org/licenses/by/4.0/",
     distribution: {
       "@type": "DataDownload",
@@ -37,13 +37,16 @@ export default function Home() {
               <p className="mt-6 max-w-3xl text-base leading-7 text-slate-600 sm:text-lg">
                 Compare public APIs, FHIR and HL7 capabilities, partner requirements, sandbox access, documented write operations, and workflows that still end at the UI.
               </p>
+              <Link href={CANADA_PATH} className="mt-5 inline-block text-sm font-semibold text-[#0b766e] hover:underline">
+                Compare {canadianEhrs.length} Canadian profiles, including the Ocean referral network <ArrowRight className="ml-1 inline size-4 align-[-3px]" />
+              </Link>
             </div>
             <aside className="self-end rounded-2xl border border-slate-200 bg-white p-5">
-              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-slate-500">The gap</p>
-              <p className="mt-3 text-sm font-medium leading-6 text-slate-800">Use a cited API when it writes the record. Partner-gated, site-specific, not-found, and unknown rows name a remaining screen. That screen is the job.</p>
-              <a href={OPENADAPT_EXECUTE_URL} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#0b766e] hover:underline">
-                OpenAdapt Execute <ArrowRight className="size-4" />
-              </a>
+              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-slate-500">No write API you can use?</p>
+              <p className="mt-3 text-sm font-medium leading-6 text-slate-800">Use a cited API when it writes the record. When access is gated, still pending, or doesn&apos;t cover your step, someone usually types the data in by hand.</p>
+              <Link href={NO_WRITE_API_PATH} className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#0b766e] hover:underline">
+                See your options, before and after <ArrowRight className="size-4" />
+              </Link>
             </aside>
           </div>
         </section>
@@ -88,7 +91,7 @@ export default function Home() {
       <footer className="border-t border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-5 py-7 text-xs text-slate-500 sm:flex-row sm:px-8">
           <p>Published by <a href="https://openadapt.ai" className="font-medium text-slate-700 hover:underline">OpenAdapt</a>. Vendor names belong to their respective owners.</p>
-          <p>Evidence reviewed August 28, 2026.</p>
+          <p>Latest evidence review {formatReviewDate(latestReview)}.</p>
         </div>
       </footer>
     </div>
